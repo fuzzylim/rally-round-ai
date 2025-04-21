@@ -1,7 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500;
+  }
+  
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400;
+  }
+  
+  .text-gradient-secondary {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-emerald-500 to-cyan-600;
+  }
+  
+  .bg-gradient-page {
+    @apply bg-gradient-to-br from-slate-50 via-white to-gray-50;
+  }
+  
+  .bg-glass {
+    @apply bg-white/80 backdrop-blur-md border border-white/20;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -72,5 +94,8 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  :root {
+    @apply dark;
   }
 }

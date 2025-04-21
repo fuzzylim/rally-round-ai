@@ -8,12 +8,11 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@types/node": "^20.5.2",
-    "eslint": "^8.48.0",
-    "eslint-config-custom": "workspace:*",
-    "typescript": "^5.1.6"
+    "@types/node": "20.5.2",
+    "eslint": "8.48.0",
+    "typescript": "5.1.6"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.33.1"
+    "@supabase/supabase-js": "2.33.1"
   }
 }

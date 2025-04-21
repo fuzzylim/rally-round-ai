@@ -1,38 +1,48 @@
 import SignupForm from './signup-form';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-950">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">RallyRound</h1>
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Create a new account</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Image 
+              src="/heart-gradient.svg" 
+              alt="" 
+              width={32} 
+              height={32} 
+              className="h-8 w-8" 
+            />
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">RallyRound</h1>
+          </div>
+          <h2 className="mt-6 text-2xl font-bold text-white">Create a new account</h2>
+          <p className="mt-2 text-sm text-slate-400">
             Or{' '}
-            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/login" className="font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
               sign in to your existing account
             </Link>
           </p>
         </div>
         
-        <div className="bg-white px-6 py-8 shadow rounded-lg">
+        <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-6 py-8 shadow-md rounded-lg">
           <SignupForm />
         </div>
         
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-slate-400">
           <p>
             By signing up, you agree to our{' '}
-            <Link href="/terms" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/terms" className="font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
               Terms of Service
             </Link>
             {' '}and{' '}
-            <Link href="/privacy" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/privacy" className="font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
               Privacy Policy
             </Link>
           </p>
           <div className="mt-4">
-            <Link href="/" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/" className="font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
               Return to home
             </Link>
           </div>

@@ -49,12 +49,12 @@ export default function SignupForm() {
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="bg-red-900/30 border-l-4 border-red-500 p-4 mb-4">
+          <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="name" className="block text-sm font-medium text-slate-300">
           Full Name
         </label>
         <div className="mt-1">
@@ -73,7 +73,7 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="email" className="block text-sm font-medium text-slate-300">
           Email
         </label>
         <div className="mt-1">
@@ -92,7 +92,7 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="password" className="block text-sm font-medium text-slate-300">
           Password
         </label>
         <div className="mt-1">
@@ -108,7 +108,7 @@ export default function SignupForm() {
             placeholder="••••••••"
           />
         </div>
-        <p className="mt-1 text-xs text-gray-500">
+        <p className="mt-1 text-xs text-slate-400">
           Password must be at least 8 characters
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function SignupForm() {
       <div>
         <Button
           type="submit"
-          className="w-full"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
           disabled={isLoading}
         >
           {isLoading ? 'Creating Account...' : 'Create Account'}

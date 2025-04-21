@@ -1,48 +1,58 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@rallyround/ui';
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="bg-white border-b">
+    <div className="flex flex-col min-h-screen bg-slate-950">
+      <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center">
-            <h1 className="text-2xl font-bold text-blue-600">RallyRound</h1>
+          <div className="flex items-center gap-2">
+            <Image 
+              src="/heart-gradient.svg" 
+              alt="" 
+              width={32} 
+              height={32} 
+              className="h-8 w-8" 
+            />
+            <h1 className="text-3xl font-extrabold text-gradient-primary tracking-tight">RallyRound</h1>
           </div>
           <nav className="hidden md:flex space-x-8">
-            <Link href="/fundraisers" className="text-gray-700 hover:text-blue-600">Fundraisers</Link>
-            <Link href="/competitions" className="text-gray-700 hover:text-blue-600">Competitions</Link>
-            <Link href="/teams" className="text-gray-700 hover:text-blue-600">Teams</Link>
-            <Link href="/about" className="text-gray-700 hover:text-blue-600">About Us</Link>
+            <Link href="/fundraisers" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Fundraisers</Link>
+            <Link href="/competitions" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Competitions</Link>
+            <Link href="/teams" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Teams</Link>
+            <Link href="/about" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">About Us</Link>
           </nav>
           <div className="flex items-center space-x-4">
             <Link href="/login">
-              <Button variant="outline">Log in</Button>
+              <Button variant="outline" className="border-slate-600 text-slate-200 hover:bg-slate-800">Log in</Button>
             </Link>
             <Link href="/signup">
-              <Button>Sign up</Button>
+              <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Sign up</Button>
             </Link>
           </div>
         </div>
       </header>
 
       <main className="flex-grow">
-        <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 -z-10"></div>
+          <div className="absolute inset-0 opacity-20 bg-[url('/mesh-gradient.svg')] bg-cover bg-center -z-10"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-white">
             <div className="max-w-3xl">
-              <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-                Bring your community together
+              <h2 className="text-5xl font-extrabold tracking-tight sm:text-6xl drop-shadow-md">
+                Bring your community <span className="text-gradient">together</span>
               </h2>
-              <p className="mt-4 text-xl">
+              <p className="mt-6 text-xl leading-relaxed">
                 RallyRound helps sports clubs, schools, and community groups organize fundraisers,
                 manage competitions, and coordinate teams - all in one place.
               </p>
-              <div className="mt-8 flex space-x-4">
+              <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link href="/signup">
-                  <Button className="px-6 py-3 text-lg">Get Started</Button>
+                  <Button className="px-8 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Get Started</Button>
                 </Link>
                 <Link href="/about">
-                  <Button variant="outline" className="px-6 py-3 text-lg">
+                  <Button variant="outline" className="px-8 py-3 text-lg rounded-full border-2 border-white/60 text-white hover:bg-white/10 transition-all duration-300 w-full sm:w-auto">
                     Learn More
                   </Button>
                 </Link>
@@ -51,47 +61,47 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="py-16 bg-white">
+        <section className="py-24 bg-slate-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h2 className="text-3xl font-extrabold text-gray-900">
-                What can you do with RallyRound?
+              <h2 className="text-4xl font-extrabold text-white">
+                What can you do with <span className="text-gradient-primary">RallyRound</span>?
               </h2>
             </div>
 
-            <div className="mt-12 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <div className="bg-white rounded-lg shadow-sm p-6 border">
-                <div className="bg-blue-100 p-2 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-blue-600">
+            <div className="mt-16 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              <div className="bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-xl shadow-md p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-6 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8 text-white">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Community Fundraising</h3>
-                <p className="mt-2 text-gray-600">
+                <h3 className="text-2xl font-bold text-gradient-primary">Community Fundraising</h3>
+                <p className="mt-4 text-slate-300 leading-relaxed">
                   Raise funds for equipment, travel, or facilities. Create campaigns, track donations, and engage supporters.
                 </p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 border">
-                <div className="bg-blue-100 p-2 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-blue-600">
+              <div className="bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-xl shadow-md p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-6 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8 text-white">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Sports Competitions</h3>
-                <p className="mt-2 text-gray-600">
+                <h3 className="text-2xl font-bold text-gradient-primary">Sports Competitions</h3>
+                <p className="mt-4 text-slate-300 leading-relaxed">
                   Organize tournaments, meets, and other sporting events. Handle registrations, schedules, and results.
                 </p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-sm p-6 border">
-                <div className="bg-blue-100 p-2 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6 text-blue-600">
+              <div className="bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-xl shadow-md p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-6 shadow-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8 text-white">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Team Management</h3>
-                <p className="mt-2 text-gray-600">
+                <h3 className="text-2xl font-bold text-gradient-primary">Team Management</h3>
+                <p className="mt-4 text-slate-300 leading-relaxed">
                   Create and manage teams for various activities. Coordinate travel, equipment, and participation.
                 </p>
               </div>
@@ -100,7 +110,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="bg-gray-900 text-white py-12">
+      <footer className="bg-gradient-to-br from-slate-950 to-slate-900 text-white py-12 border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>

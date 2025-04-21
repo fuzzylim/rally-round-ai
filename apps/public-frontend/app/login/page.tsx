@@ -1,39 +1,49 @@
 import LoginForm from './login-form';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@rallyround/ui';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-950">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">RallyRound</h1>
-          <h2 className="mt-6 text-2xl font-bold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Image 
+              src="/heart-gradient.svg" 
+              alt="" 
+              width={32} 
+              height={32} 
+              className="h-8 w-8" 
+            />
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">RallyRound</h1>
+          </div>
+          <h2 className="mt-6 text-2xl font-bold text-white">Sign in to your account</h2>
+          <p className="mt-2 text-sm text-slate-400">
             Or{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/signup" className="text-sm font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
               create a new account
             </Link>
           </p>
         </div>
         
-        <div className="bg-white px-6 py-8 shadow rounded-lg">
+        <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-6 py-8 shadow-md rounded-lg">
           <LoginForm />
           
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-slate-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-slate-900 text-slate-400">Or continue with</span>
               </div>
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <Button
                 variant="outline"
-                className="w-full flex justify-center py-2 px-4"
+                className="w-full flex justify-center py-2 px-4 border-slate-700 text-slate-300 hover:bg-slate-800"
               >
                 <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M6.29 18.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0020 3.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.073 4.073 0 01.8 7.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 010 16.407a11.616 11.616 0 006.29 1.84" />
@@ -43,7 +53,7 @@ export default function LoginPage() {
 
               <Button
                 variant="outline"
-                className="w-full flex justify-center py-2 px-4"
+                className="w-full flex justify-center py-2 px-4 border-slate-700 text-slate-300 hover:bg-slate-800"
               >
                 <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path
@@ -58,8 +68,8 @@ export default function LoginPage() {
           </div>
         </div>
         
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <Link href="/" className="font-medium text-blue-600 hover:text-blue-500">
+        <div className="mt-6 text-center text-sm text-slate-400">
+          <Link href="/" className="font-medium text-blue-300 hover:text-white underline transition-colors duration-300">
             Return to home
           </Link>
         </div>

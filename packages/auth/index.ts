@@ -1,5 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 
 // Types
 export type AuthUser = {
@@ -15,34 +14,22 @@ export type AuthResult = {
   error: Error | null;
 };
 
-// Server-side Supabase client
-export function createServerSupabaseClient(): SupabaseClient {
-  const cookieStore = cookies();
-  
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-}
-
-// Client-side Supabase client
-export function createClientSupabaseClient(): SupabaseClient {
+// Create a Supabase client (works in both client and server components)
+export function createSupabaseClient(): SupabaseClient {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   );
 }
 
+// Legacy function for backwards compatibility
+export function createClientSupabaseClient(): SupabaseClient {
+  return createSupabaseClient();
+}
+
 // Get the current user from Supabase
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  const supabase = createServerSupabaseClient();
+  const supabase = createSupabaseClient();
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
@@ -162,7 +149,7 @@ export async function signOut(): Promise<{ error: Error | null }> {
 
 // Get session
 export async function getSession() {
-  const supabase = createServerSupabaseClient();
+  const supabase = createSupabaseClient();
   
   try {
     const { data: { session } } = await supabase.auth.getSession();
@@ -174,7 +161,7 @@ export async function getSession() {
 }
 
 export default {
-  createServerSupabaseClient,
+  createSupabaseClient,
   createClientSupabaseClient,
   getCurrentUser,
   signInWithEmail,
