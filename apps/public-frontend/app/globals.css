@@ -11,6 +11,10 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400;
   }
   
+  .text-gradient-teal-green {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-green-500;
+  }
+  
   .text-gradient-secondary {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-emerald-500 to-cyan-600;
   }

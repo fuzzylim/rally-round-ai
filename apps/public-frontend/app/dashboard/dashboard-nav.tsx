@@ -26,13 +26,13 @@ export default function DashboardNav() {
             <div className="flex-shrink-0 flex items-center">
               <Link href="/" className="flex items-center gap-2">
                 <Image 
-                  src="/heart-gradient.svg" 
+                  src="/heart-blue-pink.svg" 
                   alt="" 
-                  width={28} 
-                  height={28} 
-                  className="h-7 w-7" 
+                  width={32} 
+                  height={32} 
+                  className="h-8 w-8" 
                 />
-                <span className="text-xl font-extrabold text-gradient-primary tracking-tight">RallyRound</span>
+                <h1 className="text-2xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

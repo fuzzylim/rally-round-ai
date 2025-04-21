@@ -102,7 +102,7 @@ export default function LoginForm() {
       <div>
         <Button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white"
           disabled={isLoading}
         >
           {isLoading ? 'Signing in...' : 'Sign in'}

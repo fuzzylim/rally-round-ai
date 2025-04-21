@@ -9,13 +9,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Image 
-              src="/heart-gradient.svg" 
+              src="/heart-blue-pink.svg" 
               alt="" 
               width={32} 
               height={32} 
               className="h-8 w-8" 
             />
-            <h1 className="text-3xl font-extrabold text-gradient-primary tracking-tight">RallyRound</h1>
+            <h1 className="text-3xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
           </div>
           <nav className="hidden md:flex space-x-8">
             <Link href="/fundraisers" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Fundraisers</Link>
@@ -49,7 +49,7 @@ export default function Home() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link href="/signup">
-                  <Button className="px-8 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Get Started</Button>
+                  <Button className="px-8 py-3 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white">Get Started</Button>
                 </Link>
                 <Link href="/about">
                   <Button variant="outline" className="px-8 py-3 text-lg rounded-full border-2 border-white/60 text-white hover:bg-white/10 transition-all duration-300 w-full sm:w-auto">
@@ -65,7 +65,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-4xl font-extrabold text-white">
-                What can you do with <span className="text-gradient-primary">RallyRound</span>?
+                What can you do with <span className="text-gradient">RallyRound</span>?
               </h2>
             </div>
 

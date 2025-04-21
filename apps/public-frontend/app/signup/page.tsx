@@ -9,13 +9,13 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Image 
-              src="/heart-gradient.svg" 
+              src="/heart-blue-pink.svg" 
               alt="" 
               width={32} 
               height={32} 
               className="h-8 w-8" 
             />
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">RallyRound</h1>
+            <h1 className="text-3xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
           </div>
           <h2 className="mt-6 text-2xl font-bold text-white">Create a new account</h2>
           <p className="mt-2 text-sm text-slate-400">
