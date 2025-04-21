@@ -6,6 +6,10 @@ const nextConfig = {
     "@rallyround/auth",
     "@rallyround/rbac"
   ],
+  // Ensure proper output directory is used
+  distDir: '.next',
+  // Add output export configuration
+  output: 'standalone',
 };
 
 module.exports = nextConfig;
