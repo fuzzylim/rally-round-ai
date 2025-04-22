@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/apps/public-frontend/$1" }
-  ]
+  "buildCommand": "pnpm turbo run build --filter=public-frontend...",
+  "installCommand": "pnpm install",
+  "outputDirectory": "apps/public-frontend/.next",
+  "framework": "nextjs"
 }
