@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "node vercel-prepare.js && npx turbo run build",
+  "buildCommand": "turbo build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next"
