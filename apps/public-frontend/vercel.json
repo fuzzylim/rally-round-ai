@@ -1,7 +1,6 @@
 {
-  "buildCommand": "cd ../.. && npx turbo run build --filter=public-frontend",
-  "installCommand": "cd ../.. && pnpm install",
+  "buildCommand": "cd ../.. && turbo run build --filter=public-frontend",
+  "installCommand": "pnpm install",
   "framework": "nextjs",
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "outputDirectory": ".next"
 }
