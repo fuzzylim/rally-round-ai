@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Provider, Session } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import type { AuthUser } from '@rallyround/auth';
 
@@ -46,7 +46,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
 
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClientComponentClient();
+  
+  // Known routes in the application
+  const KNOWN_ROUTES = [
+    '/',
+    '/login',
+    '/signup',
+    '/dashboard',
+    '/teams',
+    '/teams/create',
+    '/fundraisers/create',
+    '/competitions',
+    '/auth/callback'
+  ];
+  
+  // Check if the current path is a known route
+  const isKnownRoute = KNOWN_ROUTES.some(route => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
+  
+  // Check if the current path is a system path
+  const isSystemPath = 
+    pathname.includes('/_next/') || 
+    pathname.includes('/api/') ||
+    pathname.match(/\.(\w+)$/);
 
   // Load user on initial render and setup auth listener
   useEffect(() => {
@@ -102,11 +127,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   session.user.email?.split('@')[0] || 'User',
             avatarUrl: session.user.user_metadata?.avatar_url,
           });
-          router.refresh();
+          // Only refresh if we're on a known route (not a 404 page)
+          if (isKnownRoute && !isSystemPath) {
+            console.log('🔄 [Auth] Refreshing after sign in');
+            router.refresh();
+          } else {
+            console.log('⛔ [Auth] Skipping refresh on system path or 404 page');
+          }
         } else if (event === 'SIGNED_OUT') {
           console.log('🚨 [Auth] User signed out or deleted');
           setUser(null);
-          router.refresh();
+          // Only refresh if we're on a known route (not a 404 page)
+          if (isKnownRoute && !isSystemPath) {
+            console.log('🔄 [Auth] Refreshing after sign out');
+            router.refresh();
+          } else {
+            console.log('⛔ [Auth] Skipping refresh on system path or 404 page');
+          }
         } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('🔄 [Auth] Token refreshed');
           // Update user on token refresh in case metadata changed
@@ -204,6 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       setUser(null);
       setSession(null);
+      // Use client-side navigation to avoid full page refresh
       router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);

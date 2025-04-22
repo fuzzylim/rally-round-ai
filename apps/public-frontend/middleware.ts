@@ -1,118 +1,122 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { hasAccess } from '@rallyround/rbac'
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-const logPrefix = ' [Auth Middleware]'
+const logPrefix = '[Auth] '
 
+// Enhanced logging with request ID for tracing
+const log = (message: string, data?: any) => {
+  console.log(`${logPrefix} ${message}`, data || '');
+};
+
+// Routes that definitely exist and need authentication
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/teams',
+  '/teams/create',
+  '/fundraisers/create'
+];
+
+// Public routes that should not redirect to login
+const PUBLIC_ROUTES = [
+  '/',
+  '/login',
+  '/signup',
+  '/auth/callback',
+  '/competitions'
+];
+
+// System routes that should always be bypassed
+const SYSTEM_ROUTES = [
+  '/_next',
+  '/api',
+  '/favicon.ico'
+];
+
+/**
+ * Auth middleware for RallyRound
+ * 
+ * This implementation focuses on preventing infinite loops on 404 pages
+ * by only applying middleware logic to known routes.
+ */
 export async function middleware(request: NextRequest) {
-  console.log(`${logPrefix} Processing request for:`, request.nextUrl.pathname);
-
-  // Skip middleware for auth callback and static files
-  if (
-    request.nextUrl.pathname.startsWith('/auth/callback') ||
-    request.nextUrl.pathname.match(/\.(\w+)$/) // Skip for files with extensions
-  ) {
-    return NextResponse.next();
-  }
-
-  // Create a response to modify and return cookies
-  const res = NextResponse.next();
+  // Generate a request ID for tracing
+  const requestId = Math.random().toString(36).substring(2, 10);
+  const pathname = request.nextUrl.pathname;
   
-  // Create a server-side Supabase client
-  console.log(`${logPrefix} Creating server-side Supabase client...`);
-  console.log(`${logPrefix} Available cookies:`, request.cookies.getAll().map(c => c.name));
-
-  // Use the auth helpers middleware client
-  const supabase = createMiddlewareClient({ req: request, res });
-
-  // Get the session from the request cookie
-  console.log(`${logPrefix} Fetching session...`);
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-  if (sessionError) {
-    console.error(`${logPrefix} Error getting session:`, sessionError);
-  } else if (session) {
-    console.log(`${logPrefix} Found valid session for user:`, session.user.email);
-  } else {
-    console.log(`${logPrefix} No valid session found`);
-  }
-
-  // Log session state
-  console.log(`${logPrefix} Session state:`, {
-    path: request.nextUrl.pathname,
-    hasSession: !!session,
-    userId: session?.user?.id,
-    email: session?.user?.email,
-    aud: session?.user?.aud,
-    cookies: request.cookies.getAll().map(c => c.name)
-  });
-
-  // Check if this is a protected route
-  const protectedRoutes = [
-    '/dashboard',
-    '/fundraisers',
-    '/teams',
-    '/settings',
-  ];
-
-  const isProtectedRoute = protectedRoutes.some(route => 
-    request.nextUrl.pathname.startsWith(route)
-  );
-
-  // Special handling for /auth/callback
-  if (request.nextUrl.pathname === '/auth/callback') {
-    // Always let the callback page handle its own auth state
+  log(`[${requestId}] Processing: ${pathname}`);
+  
+  // STEP 1: Check if this is a system route that should be bypassed
+  if (
+    pathname.match(/\.(\w+)$/) || // Files with extensions
+    SYSTEM_ROUTES.some(route => pathname.startsWith(route))
+  ) {
+    log(`[${requestId}] Bypassing system path: ${pathname}`);
     return NextResponse.next();
   }
-
-  // If this is a protected route and there's no session, redirect to login
-  if (isProtectedRoute && !session) {
-    console.log(`${logPrefix} No session for protected route, redirecting to login`);
-    const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('redirect', request.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
+  
+  // STEP 2: Check if this is a route we know about
+  const isKnownRoute = [...PROTECTED_ROUTES, ...PUBLIC_ROUTES].some(route => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
+  
+  // If it's not a known route, just pass through without any auth logic
+  // This prevents infinite loops on 404 pages
+  if (!isKnownRoute) {
+    log(`[${requestId}] Unknown route, bypassing auth: ${pathname}`);
+    return NextResponse.next();
   }
-
-  // If this is the login page and we have a session, redirect to dashboard
-  if (request.nextUrl.pathname === '/login' && session) {
-    console.log(`${logPrefix} User already logged in, redirecting from login`);
+  
+  // STEP 3: Special handling for auth callback
+  if (pathname.startsWith('/auth/callback')) {
+    log(`[${requestId}] Auth callback, proceeding: ${pathname}`);
+    return NextResponse.next();
+  }
+  
+  // STEP 4: For known routes, check authentication
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req: request, res });
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  log(`[${requestId}] Session state:`, { 
+    path: pathname,
+    hasSession: !!session,
+    user: session?.user?.email
+  });
+  
+  // STEP 5: Handle protected routes
+  const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+    pathname === route || pathname.startsWith(`${route}/`)
+  );
+  
+  if (isProtectedRoute && !session) {
+    log(`[${requestId}] Protected route without session, redirecting to login: ${pathname}`);
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+  
+  // STEP 6: Handle login page with active session
+  if (pathname === '/login' && session) {
+    log(`[${requestId}] User already logged in, redirecting from login`);
     const redirectTo = request.nextUrl.searchParams.get('redirect') || '/dashboard';
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
-
-  // For specific admin routes, check RBAC permissions
-  const rbacRoutes = [
-    { path: '/fundraisers/create', resource: 'fundraisers', action: 'create' },
-    { path: '/teams/manage', resource: 'teams', action: 'manage' },
-    { path: '/competitions/create', resource: 'competitions', action: 'create' },
-  ]
-
-  for (const { path, resource, action } of rbacRoutes) {
-    if (request.nextUrl.pathname.startsWith(path) && session) {
-      // Simplified permission check - would normally call hasAccess
-      // During the build/deployment phase, we'll just consider all users authorized
-      // This avoids complex dependencies during the build
-      const hasPermission = true
-
-      if (!hasPermission) {
-        return NextResponse.redirect(new URL('/unauthorized', request.nextUrl.origin))
-      }
-    }
-  }
-
-  return NextResponse.next()
+  
+  // For all other known routes, just pass through
+  log(`[${requestId}] Allowing request to proceed: ${pathname}`);
+  return res;
 }
 
-// Specify which routes the middleware applies to
+/**
+ * Matcher configuration
+ * 
+ * This explicitly lists only the routes we want the middleware to run on.
+ * The middleware itself will further filter to only apply auth logic to known routes.
+ */
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/profile/:path*',
-    '/fundraisers/:path*',
-    '/teams/:path*',
-    '/competitions/:path*',
-    '/events/:path*',
-    '/members/:path*',
-  ],
+    // Match all routes except for static files and _next
+    '/((?!_next/|.*\\.).*)',
+    // Exclude API routes
+    '/((?!api/).*)'
+  ]
 }
