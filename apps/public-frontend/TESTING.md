@@ -40,6 +40,20 @@ Automated tests are currently a work in progress due to ESM compatibility issues
    - Rewrote tests to focus on core functionality
    - Reduced dependency on problematic modules
 
+### Manual Test Runner
+
+Due to the ESM compatibility issues, we've created a simple manual test runner that verifies the core functionality:
+
+```bash
+pnpm -F public-frontend test:manual
+```
+
+This script checks:
+- Middleware functionality for public and protected routes
+- 404 page handling
+- Healthcheck API responses
+- Auth provider behavior
+
 ### Next Steps for Testing
 
 To complete the automated testing:
