@@ -1,0 +1,11 @@
+{
+  "projectId": "prj_YchUnTJf6Ox3FjWDvhjYd62jQZfT",
+  "orgId": "team_vZ6lmc9prj3I8eehkoZhH0gu",
+  "settings": {
+    "framework": "nextjs",
+    "buildCommand": "cd ../.. && turbo run build --filter=public-frontend",
+    "outputDirectory": ".next",
+    "rootDirectory": "apps/public-frontend",
+    "devCommand": "next dev"
+  }
+}
