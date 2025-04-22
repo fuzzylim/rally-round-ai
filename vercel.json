@@ -3,5 +3,6 @@
   "buildCommand": "pnpm turbo run build --filter=public-frontend...",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/public-frontend/.next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "ignoreCommand": "npx turbo-ignore --filter=public-frontend"
 }
