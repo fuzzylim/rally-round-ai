@@ -1,27 +1,37 @@
 #!/bin/bash
 
-# This script prepares workspace packages for Vercel deployment
+# Enhanced build script for Vercel deployments with Turborepo best practices
+# This script is designed to be run from the project's root directory
 
-# Create packages directory if it doesn't exist
-mkdir -p packages
+set -e # Exit immediately if a command exits with a non-zero status
 
-# Copy all workspace packages
-echo "Copying workspace packages..."
-cp -r ../../packages/* ./packages/
+echo "============================================"
+echo "Starting Vercel build with Turborepo"
+echo "============================================"
 
-# Create symbolic links to ensure proper resolution
-echo "Setting up package resolution..."
-cd packages
-for d in */; do
-  cd "$d"
-  # Create package.json with absolute paths
-  sed 's/workspace:\*/latest/g' package.json > package.json.tmp
-  mv package.json.tmp package.json
-  cd ..
-done
-cd ..
+# Get the current directory where this script is located
+CURRENT_DIR=$(pwd)
+ROOT_DIR="$CURRENT_DIR/../../"
 
-# Run the original build command
-echo "Running build..."
-cd ../..
-turbo run build --filter=public-frontend
+# First, ensure all workspace dependencies are built
+echo "Building workspace dependencies..."
+cd "$ROOT_DIR"
+
+# Install dependencies if needed (Vercel should handle this, but just in case)
+if [ -z "$CI" ]; then
+  echo "Installing dependencies..."
+  pnpm install
+fi
+
+# Build all dependencies of public-frontend
+echo "Building workspace dependencies with Turborepo..."
+pnpm turbo run build --filter=public-frontend^...
+
+# Return to the app directory for the main build
+cd "$CURRENT_DIR"
+echo "Building public-frontend app..."
+pnpm next build
+
+echo "============================================"
+echo "Build completed successfully"
+echo "============================================"
