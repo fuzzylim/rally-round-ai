@@ -3,5 +3,9 @@
   "installCommand": "cd ../.. && pnpm install",
   "framework": "nextjs",
   "rewrites": [{ "source": "/(.*)", "destination": "/" }],
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "nextConfig": {
+    "transpilePackages": ["@rallyround/ui", "@rallyround/auth", "@rallyround/rbac"],
+    "output": "standalone"
+  }
 }

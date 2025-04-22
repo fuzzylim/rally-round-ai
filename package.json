@@ -13,6 +13,9 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
+  "dependencies": {
+    "next": "15.2.4"
+  },
   "devDependencies": {
     "eslint": "^8.48.0",
     "prettier": "^3.0.3",

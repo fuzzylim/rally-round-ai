@@ -1,0 +1,4 @@
+# Ignore all files except those needed for Next.js detection
+README.md
+node_modules
+.git
