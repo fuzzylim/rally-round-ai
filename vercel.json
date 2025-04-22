@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "turbo run build",
-  "devCommand": "turbo run dev",
+  "buildCommand": "turbo run build --filter=public-frontend",
+  "devCommand": "turbo run dev --filter=public-frontend",
   "installCommand": "pnpm install",
-  "framework": null,
+  "framework": "nextjs",
   "outputDirectory": "apps/public-frontend/.next"
 }

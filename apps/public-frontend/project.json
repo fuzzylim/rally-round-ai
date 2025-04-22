@@ -1,0 +1,6 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && pnpm turbo build --filter=public-frontend",
+  "outputDirectory": ".next",
+  "devCommand": "cd ../.. && pnpm turbo dev --filter=public-frontend"
+}
