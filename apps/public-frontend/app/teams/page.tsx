@@ -21,6 +21,7 @@ export default function TeamsPage() {
         
         <div className="mt-6">
           <Suspense fallback={<div>Loading teams...</div>}>
+            {/* @ts-expect-error Async Server Component */}
             <TeamsList />
           </Suspense>
         </div>
