@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "framework": "nextjs",
+  "packageManager": "pnpm@8.6.0",
   "scripts": {
     "dev": "next dev -p 3000",
     "vercel-prepare": "node vercel-prepare.js",
