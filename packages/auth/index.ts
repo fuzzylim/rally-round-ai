@@ -1,4 +1,8 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient, Provider } from '@supabase/supabase-js';
+import { signInWithSocial, handleSocialAuthCallback } from './social-auth';
+
+// Re-export social auth functions
+export { signInWithSocial, handleSocialAuthCallback };
 
 // Types
 export type AuthUser = {
@@ -168,4 +172,6 @@ export default {
   signUpWithEmail,
   signOut,
   getSession,
+  signInWithSocial,
+  handleSocialAuthCallback,
 };

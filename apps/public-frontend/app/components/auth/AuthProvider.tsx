@@ -1,7 +1,16 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { getCurrentUser, signInWithEmail, signUpWithEmail, signOut, AuthUser } from '@rallyround/auth';
+import { Provider } from '@supabase/supabase-js';
+import { 
+  getCurrentUser, 
+  signInWithEmail, 
+  signUpWithEmail, 
+  signOut, 
+  signInWithSocial,
+  handleSocialAuthCallback,
+  AuthUser 
+} from '@rallyround/auth';
 
 // Define the shape of our auth context
 type AuthContextType = {
@@ -10,6 +19,8 @@ type AuthContextType = {
   error: Error | null;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
+  signInWithProvider: (provider: Provider) => Promise<void>;
+  handleAuthCallback: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -20,6 +31,8 @@ const AuthContext = createContext<AuthContextType>({
   error: null,
   signIn: async () => {},
   signUp: async () => {},
+  signInWithProvider: async () => {},
+  handleAuthCallback: async () => {},
   logout: async () => {},
 });
 
@@ -113,6 +126,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Sign in with a social provider (Google, GitHub, etc.)
+  const signInWithProvider = async (provider: Provider) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { url, error } = await signInWithSocial(provider);
+      
+      if (error) {
+        setError(error);
+        return;
+      }
+      
+      // Redirect to the provider's login page
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (err) {
+      console.error('Social sign in error:', err);
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle the auth callback after social login
+  const handleAuthCallback = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const { user, error } = await handleSocialAuthCallback();
+      
+      if (error) {
+        setError(error);
+        return;
+      }
+      
+      setUser(user);
+    } catch (err) {
+      console.error('Auth callback error:', err);
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Create the auth value object
   const value = {
     user,
@@ -120,6 +178,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     error,
     signIn,
     signUp,
+    signInWithProvider,
+    handleAuthCallback,
     logout,
   };
 

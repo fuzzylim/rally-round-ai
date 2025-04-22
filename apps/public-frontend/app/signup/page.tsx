@@ -1,6 +1,7 @@
 import SignupForm from './signup-form';
 import Link from 'next/link';
 import Image from 'next/image';
+import SocialLoginButtons from '../components/auth/SocialLoginButtons';
 
 export default function SignupPage() {
   return (
@@ -28,6 +29,7 @@ export default function SignupPage() {
         
         <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 px-6 py-8 shadow-md rounded-lg">
           <SignupForm />
+          <SocialLoginButtons className="mt-6" title="Or sign up with" />
         </div>
         
         <div className="mt-6 text-center text-sm text-slate-400">

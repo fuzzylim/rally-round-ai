@@ -1,8 +1,11 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Extend Jest matchers
+import { expect } from '@jest/globals';
+
 // Mock Next.js router
-jest.mock('next/router', () => ({
+jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -11,16 +14,12 @@ jest.mock('next/router', () => ({
     pathname: '/',
     query: {},
   }),
+  usePathname: () => '',
+  useSearchParams: () => new URLSearchParams(),
 }));
 
-// Mock next/image
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props) => {
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...props} />;
-  },
-}));
+// Mock Next.js image component
+jest.mock('next/image', () => ({ src, alt }) => <img src={src} alt={alt} />);
 
 // Mock environment variables
 process.env = {
