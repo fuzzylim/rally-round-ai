@@ -4,6 +4,12 @@ This section provides knowledge bases and helpful information for understanding 
 
 ## Development Resources
 
+### Implementation Guides
+
+- [Authentication Implementation](./auth-implementation.md) - Supabase auth integration details
+- [Health Check Implementation](./healthcheck-implementation.md) - API health monitoring
+- [Deployment Configuration](./deployment/vercel.md) - Vercel deployment for monorepos
+
 ### Code Organisation
 
 ```

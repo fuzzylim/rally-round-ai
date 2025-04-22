@@ -9,6 +9,14 @@ apps/public-frontend/
 ├── app/                     # Next.js App Router
 │   ├── page.tsx             # Homepage
 │   ├── globals.css          # Global styles including gradient utilities
+│   ├── api/                 # API routes
+│   │   └── healthcheck/     # Health check endpoint
+│   │       ├── route.ts     # Health check API implementation
+│   │       └── route.test.ts # Health check API tests
+│   ├── components/          # Shared components
+│   │   └── auth/            # Authentication components
+│   │       ├── AuthProvider.tsx # Auth context provider
+│   │       └── AuthProvider.test.tsx # Auth provider tests
 │   ├── dashboard/           # Dashboard pages and components
 │   │   ├── page.tsx         # Main dashboard layout
 │   │   ├── stats.tsx        # Dashboard statistics component
