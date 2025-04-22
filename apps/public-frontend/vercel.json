@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm turbo run build --filter=public-frontend...",
+  "buildCommand": "node vercel-prepare.js && turbo run build --filter=public-frontend...",
   "installCommand": "pnpm install",
   "framework": "nextjs",
   "outputDirectory": ".next"
