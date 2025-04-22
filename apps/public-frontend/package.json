@@ -10,9 +10,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@rallyround/auth": "workspace:*",
-    "@rallyround/rbac": "workspace:*",
-    "@rallyround/ui": "workspace:*",
+    "@rallyround/auth": "0.1.0",
+    "@rallyround/rbac": "0.1.0",
+    "@rallyround/ui": "0.1.0",
     "@supabase/supabase-js": "2.33.1",
     "next": "15.2.4",
     "react": "18.2.0",
