@@ -1,0 +1,25 @@
+{
+  "name": "@rallyround/db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "db:push": "node -r esbuild-register ./src/push.ts",
+    "db:introspect": "drizzle-kit introspect"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.42.0",
+    "pg": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.13",
+    "drizzle-kit": "^0.31.0",
+    "esbuild-register": "^3.6.0",
+    "typescript": "^5.8.3"
+  }
+}

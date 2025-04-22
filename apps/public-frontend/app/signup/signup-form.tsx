@@ -7,47 +7,12 @@ import { Button, Input } from '@rallyround/ui';
 
 export default function SignupForm() {
   const router = useRouter();
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const { user, error } = await signUpWithEmail(email, password, name);
-
-      if (error) {
-        throw error;
-      }
-
-      if (user) {
-        // Redirect to onboarding or dashboard
-        router.push('/onboarding');
-      } else {
-        // Supabase sometimes returns success even when confirmation email is sent
-        router.push('/signup/confirm');
-      }
-    } catch (err: any) {
-      console.error('Signup error:', err);
-      setError(err.message || 'Failed to sign up');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <form className="space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={e => e.preventDefault()}>
       {error && (
         <div className="bg-red-900/30 border-l-4 border-red-500 p-4 mb-4">
           <p className="text-sm text-red-300">{error}</p>
@@ -59,13 +24,13 @@ export default function SignupForm() {
         </label>
         <div className="mt-1">
           <Input
-            id="name"
-            name="name"
+            id="fullName"
+            name="fullName"
             type="text"
             autoComplete="name"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             className="w-full"
             placeholder="Jane Smith"
           />
@@ -91,36 +56,10 @@ export default function SignupForm() {
         </div>
       </div>
 
-      <div>
-        <label htmlFor="password" className="block text-sm font-medium text-slate-300">
-          Password
-        </label>
-        <div className="mt-1">
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full"
-            placeholder="••••••••"
-          />
-        </div>
-        <p className="mt-1 text-xs text-slate-400">
-          Password must be at least 8 characters
+      <div className="pt-2">
+        <p className="text-center text-slate-400 text-sm">
+          Sign up with a social account below.
         </p>
-      </div>
-
-      <div>
-        <Button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Creating Account...' : 'Create Account'}
-        </Button>
       </div>
     </form>
   );

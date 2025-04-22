@@ -1,14 +1,16 @@
-import { createClient, SupabaseClient, Provider } from '@supabase/supabase-js';
+import { Provider } from '@supabase/supabase-js';
 import { signInWithSocial, handleSocialAuthCallback } from './social-auth';
+import { supabase } from './supabase-singleton';
 
-// Re-export social auth functions
-export { signInWithSocial, handleSocialAuthCallback };
+// Re-export social auth functions and client
+export { signInWithSocial, handleSocialAuthCallback, supabase };
 
 // Types
 export type AuthUser = {
   id: string;
   email?: string;
-  name?: string;
+  name?: string; // deprecated, use fullName
+  fullName?: string;
   avatarUrl?: string;
   roles?: string[];
 };
@@ -18,17 +20,15 @@ export type AuthResult = {
   error: Error | null;
 };
 
-// Create a Supabase client (works in both client and server components)
-export function createSupabaseClient(): SupabaseClient {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+// Legacy functions for backwards compatibility
+export function createSupabaseClient() {
+  console.warn('createSupabaseClient is deprecated, use the supabase singleton instead');
+  return supabase;
 }
 
-// Legacy function for backwards compatibility
-export function createClientSupabaseClient(): SupabaseClient {
-  return createSupabaseClient();
+export function createClientSupabaseClient() {
+  console.warn('createClientSupabaseClient is deprecated, use the supabase singleton instead');
+  return supabase;
 }
 
 // Get the current user from Supabase
@@ -43,16 +43,17 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
     }
     
     // Fetch additional user data from profile table
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('name, avatar_url')
+      .select('full_name, avatar_url, email')
       .eq('id', user.id)
       .single();
     
     return {
       id: user.id,
       email: user.email,
-      name: profile?.name || user.email?.split('@')[0] || 'User',
+      name: profile?.full_name || user.email?.split('@')[0] || 'User',
+      fullName: profile?.full_name || user.email?.split('@')[0] || 'User',
       avatarUrl: profile?.avatar_url,
     };
   } catch (error) {
@@ -102,35 +103,48 @@ export async function signInWithEmail(
 export async function signUpWithEmail(
   email: string,
   password: string,
-  name: string
+  fullName: string
 ): Promise<AuthResult> {
   const supabase = createClientSupabaseClient();
   
   try {
+    // Sign up the user
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
     });
-    
+
     if (error) {
-      return { user: null, error };
+      throw error;
     }
-    
-    if (data.user) {
-      // Create a profile
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        name,
-        avatar_url: null,
-        updated_at: new Date().toISOString(),
-      });
+
+    if (!data.user) {
+      throw new Error('No user data returned from signup');
+    }
+
+    // Create a profile for the user
+    const { error: profileError } = await supabase.from('profiles').insert({
+      id: data.user.id,
+      full_name: fullName,
+      email,
+      updated_at: new Date().toISOString(),
+    });
+
+    if (profileError) {
+      throw profileError;
     }
     
     return {
       user: data.user ? {
         id: data.user.id,
         email: data.user.email,
-        name,
+        fullName,
+        name: fullName, // Keep name for backward compatibility
       } : null,
       error: null,
     };

@@ -1,71 +1,92 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../components/auth/AuthProvider';
+import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
+
+function safeRedirect(url: string) {
+  // Add a delay to ensure logs are visible and session is set
+  console.log('⏳ [Auth] Waiting for session to settle before redirect...');
+  setTimeout(() => {
+    console.log('➡️ [Auth] Redirecting to:', url);
+    window.location.href = url;
+  }, 2000);
+}
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const { handleAuthCallback, loading, error } = useAuth();
-  const [localError, setLocalError] = useState<string | null>(null);
+  const { handleAuthCallback } = useAuth();
+  const [error, setError] = useState<Error | null>(null);
+  const hasStartedRef = useRef(false);
 
   useEffect(() => {
-    async function processCallback() {
-      try {
-        await handleAuthCallback();
-        // Redirect to dashboard after successful login
-        router.push('/dashboard');
-      } catch (err) {
-        console.error('Error in auth callback:', err);
-        setLocalError('Authentication failed. Please try again.');
+    const processCallback = async () => {
+      // Only run once
+      if (hasStartedRef.current) {
+        console.log('⏭️ [Auth] Callback already processed, skipping...');
+        return;
       }
-    }
+      hasStartedRef.current = true;
+      console.log('🔄 [Auth] Starting callback processing...');
+
+      try {
+        // Process the callback
+        console.log('🔍 [Auth] Processing auth callback...');
+        const { user, error } = await handleAuthCallback();
+
+        if (error) {
+          console.error('❌ [Auth] Callback error:', error);
+          setError(error);
+          router.replace('/login');
+          return;
+        }
+
+        if (!user) {
+          console.error('❌ [Auth] No user returned from callback');
+          const err = new Error('No user returned from callback');
+          setError(err);
+          router.replace('/login');
+          return;
+        }
+
+        console.log('✅ [Auth] Callback successful:', user.email);
+
+        // Get the redirect URL
+        const params = new URLSearchParams(window.location.search);
+        const redirectTo = params.get('redirect') || '/dashboard';
+        console.log('➡️ [Auth] Redirecting to:', redirectTo);
+
+        // Redirect to the target URL
+        safeRedirect(redirectTo);
+      } catch (e) {
+        console.error('❌ [Auth] Unexpected error:', e);
+        setError(e as Error);
+        router.replace('/login');
+      }
+    };
 
     processCallback();
   }, [handleAuthCallback, router]);
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8 rounded-xl bg-slate-800/50 p-8 shadow-xl backdrop-blur-sm">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-white">Completing login...</h2>
-            <div className="mt-6 flex justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-blue-500"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || localError) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8 rounded-xl bg-slate-800/50 p-8 shadow-xl backdrop-blur-sm">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-500">Authentication Error</h2>
-            <p className="mt-4 text-white">{error?.message || localError}</p>
-            <button
-              onClick={() => router.push('/login')}
-              className="mt-6 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-            >
-              Back to Login
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  if (error) {
+    throw error; // This will be caught by the error boundary
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full max-w-md space-y-8 rounded-xl bg-slate-800/50 p-8 shadow-xl backdrop-blur-sm">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-white">Redirecting...</h2>
-          <p className="mt-4 text-gray-300">You'll be redirected to your dashboard shortly.</p>
+    <AuthErrorBoundary>
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-gray-900">
+            Completing Sign in...
+          </h2>
+          <div className="space-y-4">
+            <div className="h-2 w-full animate-pulse rounded bg-gray-200" />
+            <div className="h-2 w-3/4 animate-pulse rounded bg-gray-200" />
+            <div className="h-2 w-1/2 animate-pulse rounded bg-gray-200" />
+          </div>
         </div>
       </div>
-    </div>
+    </AuthErrorBoundary>
   );
 }

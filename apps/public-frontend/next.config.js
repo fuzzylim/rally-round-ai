@@ -10,6 +10,22 @@ const nextConfig = {
   distDir: '.next',
   // Add output export configuration
   output: 'standalone',
+  // Add async redirects for auth
+  async redirects() {
+    return [
+      {
+        source: '/auth/callback',
+        has: [
+          {
+            type: 'query',
+            key: 'error',
+          },
+        ],
+        permanent: false,
+        destination: '/login?error=auth',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;

@@ -14,13 +14,22 @@ export default function SocialLoginButtons({
 }: SocialLoginButtonsProps) {
   const { signInWithProvider, loading } = useAuth();
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     setIsLoading(provider);
+    setError(null);
     try {
       await signInWithProvider(provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error signing in with ${provider}:`, error);
+      setError(
+        error?.message
+          ? `Failed to sign in with ${provider}: ${error.message}`
+          : `Failed to sign in with ${provider}. Please try again or contact support.`
+      );
+    } finally {
+      setIsLoading(null);
     }
   };
 
@@ -38,6 +47,11 @@ export default function SocialLoginButtons({
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-3">
+        {error && (
+          <div className="col-span-2 bg-red-900/30 border-l-4 border-red-500 p-3 mb-3 rounded">
+            <p className="text-xs text-red-300">{error}</p>
+          </div>
+        )}
         <button
           type="button"
           disabled={loading || isLoading !== null}
