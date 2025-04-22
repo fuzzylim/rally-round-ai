@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { hasAccess } from '@rallyround/rbac'
-import { createServerSupabase } from '@rallyround/auth/supabase-singleton'
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
 const logPrefix = ' [Auth Middleware]'
 
@@ -11,22 +11,20 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for auth callback and static files
   if (
     request.nextUrl.pathname.startsWith('/auth/callback') ||
-    request.nextUrl.pathname.match(/\.(.+)$/) // Skip for files with extensions
+    request.nextUrl.pathname.match(/\.(\w+)$/) // Skip for files with extensions
   ) {
     return NextResponse.next();
   }
 
+  // Create a response to modify and return cookies
+  const res = NextResponse.next();
+  
   // Create a server-side Supabase client
   console.log(`${logPrefix} Creating server-side Supabase client...`);
   console.log(`${logPrefix} Available cookies:`, request.cookies.getAll().map(c => c.name));
 
-  const supabase = createServerSupabase({
-    get: (key) => {
-      const cookie = request.cookies.get(key);
-      console.log(`${logPrefix} Looking up cookie '${key}':`, cookie?.value ? '(found)' : '(not found)');
-      return cookie;
-    }
-  });
+  // Use the auth helpers middleware client
+  const supabase = createMiddlewareClient({ req: request, res });
 
   // Get the session from the request cookie
   console.log(`${logPrefix} Fetching session...`);

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../components/auth/AuthProvider';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
 
 function safeRedirect(url: string) {
@@ -11,13 +11,14 @@ function safeRedirect(url: string) {
   setTimeout(() => {
     console.log('➡️ [Auth] Redirecting to:', url);
     window.location.href = url;
-  }, 2000);
+  }, 1000);
 }
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const { handleAuthCallback } = useAuth();
+  const supabase = createClientComponentClient();
   const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const hasStartedRef = useRef(false);
 
   useEffect(() => {
@@ -28,29 +29,43 @@ export default function AuthCallbackPage() {
         return;
       }
       hasStartedRef.current = true;
+      setIsLoading(true);
       console.log('🔄 [Auth] Starting callback processing...');
 
       try {
-        // Process the callback
-        console.log('🔍 [Auth] Processing auth callback...');
-        const { user, error } = await handleAuthCallback();
-
-        if (error) {
-          console.error('❌ [Auth] Callback error:', error);
-          setError(error);
-          router.replace('/login');
-          return;
+        // The Supabase client will automatically handle the code exchange
+        // from the URL hash or query parameters
+        console.log('🔍 [Auth] Checking for existing session...');
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // If there's no session, the client didn't auto-process the auth callback
+        if (!session) {
+          console.log('🔍 [Auth] No session found, manual code processing needed');
+          
+          // Wait a moment to ensure any client-side processing has time to complete
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          
+          // Check again if session was set after delay
+          const { data: { session: delayedSession } } = await supabase.auth.getSession();
+          
+          if (!delayedSession) {
+            console.error('❌ [Auth] Unable to establish session after callback');
+            throw new Error('Authentication failed - could not establish session');
+          }
         }
 
-        if (!user) {
-          console.error('❌ [Auth] No user returned from callback');
-          const err = new Error('No user returned from callback');
+        // Get the final session state to verify everything worked
+        const { data: { session: finalSession } } = await supabase.auth.getSession();
+        
+        if (!finalSession?.user) {
+          console.error('❌ [Auth] No user in session after callback');
+          const err = new Error('Authentication failed - no user found');
           setError(err);
           router.replace('/login');
           return;
         }
 
-        console.log('✅ [Auth] Callback successful:', user.email);
+        console.log('✅ [Auth] Callback successful:', finalSession.user.email);
 
         // Get the redirect URL
         const params = new URLSearchParams(window.location.search);
@@ -67,7 +82,7 @@ export default function AuthCallbackPage() {
     };
 
     processCallback();
-  }, [handleAuthCallback, router]);
+  }, [supabase, router]);
 
   if (error) {
     throw error; // This will be caught by the error boundary

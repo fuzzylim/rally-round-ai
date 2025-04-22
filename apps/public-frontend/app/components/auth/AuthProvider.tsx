@@ -1,14 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Provider } from '@supabase/supabase-js';
+import { Provider, Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { 
-  AuthUser,
-  supabase,
-  signInWithSocial,
-  handleSocialAuthCallback,
-} from '@rallyround/auth';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { AuthUser } from '@rallyround/auth';
 
 // Define the shape of our auth context
 type AuthResult = {
@@ -47,8 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   // Load user on initial render and setup auth listener
   useEffect(() => {
@@ -57,17 +55,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(true);
         console.log('🔍 [Auth] Loading initial user state...');
 
-        // First check the session
+        // Get current session and user using auth helpers
         const { data: { session } } = await supabase.auth.getSession();
         console.log('ℹ️ [Auth] Initial session state:', !!session);
+        setSession(session);
 
-        if (session) {
-          const { data: { user } } = await supabase.auth.getUser();
-          console.log('✅ [Auth] Found user from session:', user?.email);
-          setUser(user);
+        if (session?.user) {
+          console.log('✅ [Auth] Found user from session:', session.user.email);
+          
+          // Transform to our AuthUser type
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.full_name || 
+                  session.user.user_metadata?.name || 
+                  session.user.email?.split('@')[0] || 'User',
+            avatarUrl: session.user.user_metadata?.avatar_url,
+          });
         } else {
           console.log('ℹ️ [Auth] No session found');
           setUser(null);
+          setSession(null);
         }
       } catch (err) {
         console.error('❌ [Auth] Error loading user:', err);
@@ -77,22 +85,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Set up auth state listener
+    // Set up auth state listener with the auth helpers client
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔔 [Auth] Auth state change:', { event, session: !!session });
+        setSession(session);
         
-        if (event === 'SIGNED_IN' && session) {
+        if (event === 'SIGNED_IN' && session?.user) {
           console.log('✅ [Auth] User signed in:', session.user.email);
-          setUser(session.user);
+          // Transform to our AuthUser type
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.full_name || 
+                  session.user.user_metadata?.name || 
+                  session.user.email?.split('@')[0] || 'User',
+            avatarUrl: session.user.user_metadata?.avatar_url,
+          });
           router.refresh();
         } else if (event === 'SIGNED_OUT') {
           console.log('🚨 [Auth] User signed out or deleted');
           setUser(null);
           router.refresh();
-        } else if (event === 'TOKEN_REFRESHED' && session) {
+        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
           console.log('🔄 [Auth] Token refreshed');
-          setUser(session.user);
+          // Update user on token refresh in case metadata changed
+          setUser({
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.full_name || 
+                  session.user.user_metadata?.name || 
+                  session.user.email?.split('@')[0] || 'User',
+            avatarUrl: session.user.user_metadata?.avatar_url,
+          });
         }
       }
     );
@@ -111,14 +136,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      const { data: { user } } = await supabase.auth.getUser();
       
-      if (error) {
-        setError(error);
-        return;
+      // Update session and user
+      if (data.session && data.user) {
+        setSession(data.session);
+        setUser({
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.user_metadata?.full_name || 
+                data.user.user_metadata?.name || 
+                data.user.email?.split('@')[0] || 'User',
+          avatarUrl: data.user.user_metadata?.avatar_url,
+        });
       }
-      
-      setUser(user);
     } catch (err) {
       console.error('Sign in error:', err);
       setError(err as Error);
@@ -135,17 +165,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
-        options: { data: { full_name: name } }
+        options: { 
+          data: { full_name: name },
+          emailRedirectTo: `${window.location.origin}/auth/callback`
+        }
       });
       if (error) throw error;
-      const { data: { user } } = await supabase.auth.getUser();
       
-      if (error) {
-        setError(error);
-        return;
+      // Update session and user if available immediately (autoconfirm)
+      if (data.session && data.user) {
+        setSession(data.session);
+        setUser({
+          id: data.user.id,
+          email: data.user.email || '',
+          name: data.user.user_metadata?.full_name || name,
+          avatarUrl: data.user.user_metadata?.avatar_url,
+        });
       }
-      
-      setUser(user);
     } catch (err) {
       console.error('Sign up error:', err);
       setError(err as Error);
@@ -167,6 +203,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setUser(null);
+      setSession(null);
+      router.push('/login');
     } catch (err) {
       console.error('Logout error:', err);
       setError(err as Error);
@@ -180,7 +218,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true);
       setError(null);
-      const { url, error } = await signInWithSocial(provider);
+      
+      // Use the auth helpers directly
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          scopes: provider === 'google' ? 'profile email' : undefined,
+        },
+      });
       
       if (error) {
         setError(error);
@@ -188,8 +234,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       // Redirect to the provider's login page
-      if (url) {
-        window.location.href = url;
+      if (data.url) {
+        window.location.href = data.url;
       }
     } catch (err) {
       console.error('Social sign in error:', err);
@@ -206,34 +252,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       console.log('🔄 [Auth] Processing auth callback...');
 
-      // First check if we already have a session
+      // The Supabase client will automatically handle the code exchange
+      // from the URL hash or query parameters
+      console.log('🔍 [Auth] Checking for existing session...');
       const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        console.log('✅ [Auth] Found existing session:', session.user.email);
-        setUser(session.user);
-        return { user: session.user, error: null };
+      
+      // If there's no session, the client didn't auto-process the auth callback
+      if (!session) {
+        console.log('🔍 [Auth] No session found, waiting for client processing...');
+        
+        // Wait a moment to ensure any client-side processing has time to complete
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
+        // Check again if session was set after delay
+        const { data: { session: delayedSession } } = await supabase.auth.getSession();
+        
+        if (!delayedSession) {
+          console.error('❌ [Auth] Unable to establish session after callback');
+          const err = new Error('Authentication failed - could not establish session');
+          setError(err);
+          return { user: null, error: err };
+        }
       }
 
-      // If no session, handle the callback
-      console.log('🔍 [Auth] No session found, handling callback...');
-      const { user, error } = await handleSocialAuthCallback();
+      // Get the final session state to verify everything worked
+      const { data: { session: finalSession } } = await supabase.auth.getSession();
       
-      if (error) {
-        console.error('❌ [Auth] Callback error:', error);
-        setError(error);
-        return { user: null, error };
-      }
-      
-      if (!user) {
-        console.error('❌ [Auth] No user returned from callback');
-        const error = new Error('No user returned from callback');
-        setError(error);
-        return { user: null, error };
+      if (!finalSession?.user) {
+        console.error('❌ [Auth] No user in session after callback');
+        const err = new Error('Authentication failed - no user found');
+        setError(err);
+        return { user: null, error: err };
       }
 
-      console.log('✅ [Auth] Callback successful:', user.email);
-      setUser(user);
-      return { user, error: null };
+      // Create our standard user object from session
+      const authUser: AuthUser = {
+        id: finalSession.user.id,
+        email: finalSession.user.email || '',
+        name: finalSession.user.user_metadata?.full_name || 
+              finalSession.user.user_metadata?.name || 
+              finalSession.user.email?.split('@')[0] || 'User',
+        avatarUrl: finalSession.user.user_metadata?.avatar_url,
+      };
+
+      console.log('✅ [Auth] Callback successful:', authUser.email);
+      setUser(authUser);
+      setSession(finalSession);
+      return { user: authUser, error: null };
     } catch (err) {
       console.error('❌ [Auth] Unexpected error:', err);
       const error = err as Error;
