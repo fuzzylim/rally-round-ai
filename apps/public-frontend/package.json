@@ -5,7 +5,8 @@
   "framework": "nextjs",
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "vercel-prepare": "node vercel-prepare.js",
+    "build": "node vercel-prepare.js && next build",
     "start": "next start",
     "lint": "next lint"
   },
