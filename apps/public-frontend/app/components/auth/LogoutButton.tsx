@@ -2,6 +2,7 @@
 
 import { useAuth } from './AuthProvider';
 import { useState } from 'react';
+import { useAnalytics } from '../../hooks/useAnalytics';
 
 interface LogoutButtonProps {
   className?: string;
@@ -12,12 +13,18 @@ export default function LogoutButton({
   className = '', 
   variant = 'primary' 
 }: LogoutButtonProps) {
-  const { logout, loading } = useAuth();
+  const { logout, loading, user } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { trackEvent } = useAnalytics();
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
+      // Track logout event before actual logout to ensure user data is available
+      trackEvent('logout', { 
+        userId: user?.id ?? null, 
+        email: user?.email ?? null 
+      });
       await logout();
     } catch (error) {
       console.error('Logout failed:', error);

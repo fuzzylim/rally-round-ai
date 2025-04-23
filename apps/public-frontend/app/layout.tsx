@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/next';
 import { AuthProvider } from './components/auth/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -26,7 +26,16 @@ export default function RootLayout({
             {children}
           </div>
         </AuthProvider>
-        <Analytics />
+        <Analytics 
+          debug={process.env.NODE_ENV === 'development'}
+          beforeSend={(event) => {
+            // Don't track sensitive URLs (e.g., admin pages, etc.)
+            if (event.url.includes('/admin') || event.url.includes('/private')) {
+              return null;
+            }
+            return event;
+          }}
+        />
       </body>
     </html>
   );
