@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Analytics } from '@vercel/analytics/react';
 import { AuthProvider } from './components/auth/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -25,6 +26,7 @@ export default function RootLayout({
             {children}
           </div>
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

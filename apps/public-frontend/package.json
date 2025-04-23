@@ -21,6 +21,7 @@
     "@rallyround/ui": "0.1.0",
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/supabase-js": "^2.39.8",
+    "@vercel/analytics": "^1.5.0",
     "clsx": "2.0.0",
     "lucide-react": "0.268.0",
     "next": "15.2.4",
