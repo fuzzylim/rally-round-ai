@@ -6,7 +6,8 @@
   "types": "dist/src/index.d.ts",
   "exports": {
     ".": "./dist/src/index.js",
-    "./schema": "./dist/src/schema/index.js"
+    "./schema": "./dist/src/schema/index.js",
+    "./services/*": "./dist/src/services/*.js"
   },
   "scripts": {
     "build": "tsc",

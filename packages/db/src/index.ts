@@ -121,6 +121,10 @@ export { organizationService } from './services/organization-service';
 export { teamRepository } from './repositories/team-repository';
 export { organizationRepository } from './repositories/organization-repository';
 
+// Re-export specific types for all exported services
+export type { TeamServiceInterface, TeamService } from './services/team-service';
+export type { OrganizationServiceInterface, OrganizationService } from './services/organization-service';
+
 // Re-export types from repositories and services
 export type { CreateTeamParams, TeamWithMembership, TeamMemberParams } from './repositories/team-repository';
 export type { CreateOrganizationParams, OrganizationWithMembership, OrganizationMemberParams } from './repositories/organization-repository';

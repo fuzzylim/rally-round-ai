@@ -5,7 +5,16 @@
  */
 import { organizationRepository, CreateOrganizationParams, OrganizationWithMembership, OrganizationMemberParams } from '../repositories/organization-repository';
 
-export class OrganizationService {
+export interface OrganizationServiceInterface {
+  getUserOrganizations(userId: string): Promise<OrganizationWithMembership[]>;
+  createOrganization(params: CreateOrganizationParams): Promise<{ organization: any, membership: any }>;
+  getOrganizationDetails(organizationId: string): Promise<any>;
+  addOrganizationMember(params: OrganizationMemberParams): Promise<any>;
+  isOrganizationMember(organizationId: string, userId: string): Promise<boolean>;
+  getOrCreateDefaultOrganization(userId: string, userName?: string): Promise<any>;
+}
+
+export class OrganizationService implements OrganizationServiceInterface {
   /**
    * Get all organizations for a user
    */

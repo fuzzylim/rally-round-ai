@@ -6,7 +6,16 @@
 import { teamRepository, CreateTeamParams, TeamWithMembership, TeamMemberParams } from '../repositories/team-repository';
 import { organizationService } from './organization-service';
 
-export class TeamService {
+export interface TeamServiceInterface {
+  getUserTeams(userId: string): Promise<TeamWithMembership[]>;
+  createTeam(params: CreateTeamParams): Promise<{ team: any, membership: any }>;
+  getTeamDetails(teamId: string): Promise<any>;
+  addTeamMember(params: TeamMemberParams): Promise<any>;
+  getTeamMembers(teamId: string): Promise<any[]>;
+  getTeamsByOrganization(organizationId: string, userId: string): Promise<any[]>;
+}
+
+export class TeamService implements TeamServiceInterface {
   /**
    * Get all teams for a user
    */
