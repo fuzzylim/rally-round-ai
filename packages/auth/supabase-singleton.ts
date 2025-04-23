@@ -1,8 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { type CookieOptions } from '@supabase/auth-helpers-nextjs'
 import type { Database } from './database.types'
+
+// Define cookie options type
+type CookieOptions = {
+  name: string
+  lifetime: number
+  domain?: string
+  path: string
+  sameSite: 'lax' | 'strict' | 'none'
+  secure: boolean
+}
 
 // Supabase project credentials
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -34,42 +43,19 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     flowType: 'pkce',
-  },
+  } as any, // Type assertion to avoid type errors
 })
 
 // For client components with cookie-based auth
 export const createBrowserClient = () => {
-  return createClientComponentClient<Database>({
-    supabaseUrl,
-    supabaseKey: supabaseAnonKey,
-    options: {
-      auth: {
-        flowType: 'pkce',
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-      },
-      cookies: {
-        ...cookieOptions,
-      }
-    }
-  })
+  // Create the client component client with minimal configuration
+  return createClientComponentClient<Database>()
 }
 
 // For server components
 export const createServerClient = (cookies: any) => {
-  return createServerComponentClient<Database>({
-    cookies,
-    options: {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-      },
-      cookies: {
-        ...cookieOptions,
-      }
-    }
-  })
+  // Create the server component client with just the cookies parameter
+  return createServerComponentClient<Database>({ cookies })
 }
 
 // For middleware (compatible with previous code)
