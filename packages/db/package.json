@@ -2,7 +2,12 @@
   "name": "@rallyround/db",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": "./dist/src/index.js",
+    "./schema": "./dist/src/schema/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "db:push": "node -r esbuild-register ./src/push.ts",
