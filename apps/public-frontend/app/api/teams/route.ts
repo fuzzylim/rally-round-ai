@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { teamService, organizationService } from '@rallyround/db';
+// Import directly from the service files to avoid potential export issues
+import { teamService } from '@rallyround/db/src/services/team-service';
+import { organizationService } from '@rallyround/db/src/services/organization-service';
 
 export async function POST(request: Request) {
   try {

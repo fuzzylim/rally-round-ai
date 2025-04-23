@@ -29,12 +29,36 @@ export class TeamService {
   async createTeam(params: CreateTeamParams): Promise<{ team: any, membership: any }> {
     try {
       // Validate team data
-      if (!params.name || !params.sport || !params.ageGroup || !params.createdById) {
+      if (!params.name || !params.sport || !params.ageGroup || !params.createdById || !params.organizationId) {
         throw new Error('Missing required team information');
       }
+      
+      // Verify user is a member of the organization
+      const isMember = await organizationService.isOrganizationMember(params.organizationId, params.createdById);
+      if (!isMember) {
+        throw new Error('User is not a member of the organization');
+      }
 
-      // Create team with all related records
-      return await teamRepository.createTeam(params);
+      // Create the team
+      const result = await teamRepository.createTeam(params);
+      const createdTeam = result.team;
+      
+      // Add creator as team owner
+      const membership = await teamRepository.addTeamMember({
+        teamId: createdTeam.id,
+        userId: params.createdById,
+        role: 'owner'
+      });
+      
+      // Log the team activity
+      await teamRepository.logTeamActivity({
+        teamId: createdTeam.id,
+        userId: params.createdById,
+        activityType: 'team_created',
+        description: `Team "${params.name}" was created`
+      });
+      
+      return { team: createdTeam, membership };
     } catch (error) {
       console.error('TeamService.createTeam error:', error);
       throw new Error(`Failed to create team: ${error instanceof Error ? error.message : String(error)}`);

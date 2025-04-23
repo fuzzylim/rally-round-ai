@@ -41,7 +41,7 @@ describe('Team Service', () => {
       const mockTeam = { id: 'team-123', ...teamData };
       
       vi.mocked(organizationService.isOrganizationMember).mockResolvedValue(true);
-      vi.mocked(teamRepository.createTeam).mockResolvedValue(mockTeam);
+      vi.mocked(teamRepository.createTeam).mockResolvedValue({ team: mockTeam, membership: null });
       vi.mocked(teamRepository.addTeamMember).mockResolvedValue({
         id: 'member-123',
         teamId: 'team-123',

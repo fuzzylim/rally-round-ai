@@ -1,7 +1,8 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { organizationService } from '@rallyround/db';
+// Import directly from the service file to avoid potential export issues
+import { organizationService } from '@rallyround/db/src/services/organization-service';
 
 export const dynamic = 'force-dynamic';
 

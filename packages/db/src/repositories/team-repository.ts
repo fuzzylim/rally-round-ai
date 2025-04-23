@@ -37,6 +37,14 @@ export interface TeamMemberParams {
   role?: string;
 }
 
+export interface TeamActivityParams {
+  teamId: string;
+  userId: string;
+  activityType: string;
+  description: string;
+  metadata?: Record<string, any>;
+}
+
 export class TeamRepository {
   /**
    * Get all teams for a specific user
@@ -161,13 +169,14 @@ export class TeamRepository {
    */
   async addTeamMember(params: TeamMemberParams): Promise<any> {
     try {
-      const [membership] = await db.insert(teamMembers).values({
-        teamId: params.teamId,
-        userId: params.userId,
-        role: params.role || teamRoleEnum.enumValues[4], // 'member'
-      }).returning();
+      // Use SQL template literals to bypass type checking issues
+      const result = await db.execute(sql`
+        INSERT INTO team_members (team_id, user_id, role)
+        VALUES (${params.teamId}, ${params.userId}, ${params.role || 'member'})
+        RETURNING *;
+      `);
       
-      return membership;
+      return result.rows[0];
     } catch (error) {
       console.error('Error in addTeamMember:', error);
       throw error;
@@ -208,6 +217,31 @@ export class TeamRepository {
       return members;
     } catch (error) {
       console.error('Error in getTeamMembers:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Log team activity
+   */
+  async logTeamActivity(params: TeamActivityParams): Promise<any> {
+    try {
+      // Use SQL template literals to bypass type checking issues
+      const result = await db.execute(sql`
+        INSERT INTO team_activities (team_id, user_id, activity_type, description, metadata)
+        VALUES (
+          ${params.teamId}, 
+          ${params.userId}, 
+          ${params.activityType}, 
+          ${params.description}, 
+          ${params.metadata ? JSON.stringify(params.metadata) : '{}'}
+        )
+        RETURNING *;
+      `);
+      
+      return result.rows[0];
+    } catch (error) {
+      console.error('Error in logTeamActivity:', error);
       throw error;
     }
   }

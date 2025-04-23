@@ -31,8 +31,17 @@ export class OrganizationService {
         throw new Error('Missing required organization information');
       }
 
-      // Create organization with all related records
-      return await organizationRepository.createOrganization(params);
+      // Create organization
+      const organization = await organizationRepository.createOrganization(params);
+      
+      // Add creator as owner
+      const membership = await organizationRepository.addOrganizationMember({
+        organizationId: organization.id,
+        userId: params.createdById,
+        role: 'owner'
+      });
+      
+      return { organization, membership };
     } catch (error) {
       console.error('OrganizationService.createOrganization error:', error);
       throw new Error(`Failed to create organization: ${error instanceof Error ? error.message : String(error)}`);
@@ -85,7 +94,7 @@ export class OrganizationService {
    * Get the default organization for a user
    * If no organization exists, creates a new one
    */
-  async getOrCreateDefaultOrganization(userId: string, userName: string): Promise<any> {
+  async getOrCreateDefaultOrganization(userId: string, userName?: string): Promise<any> {
     try {
       // Try to get the default organization
       const defaultOrg = await organizationRepository.getDefaultOrganizationForUser(userId);
@@ -95,10 +104,14 @@ export class OrganizationService {
         return defaultOrg;
       }
       
+      // Use default name if userName is not provided
+      const orgName = userName ? `${userName}'s Organization` : 'My Organization';
+      const orgDescription = userName ? `Default organization for ${userName}` : 'Personal organization';
+      
       // Otherwise, create a new organization for the user
       const { organization } = await this.createOrganization({
-        name: `${userName}'s Organization`,
-        description: `Default organization for ${userName}`,
+        name: orgName,
+        description: orgDescription,
         createdById: userId
       });
       
