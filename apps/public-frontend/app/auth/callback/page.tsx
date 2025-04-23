@@ -69,11 +69,13 @@ export default function AuthCallbackPage() {
 
         // Get the redirect URL
         const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get('redirect') || '/dashboard';
-        console.log('➡️ [Auth] Redirecting to:', redirectTo);
+        const redirectTo = params.get('redirect');
+        const allowedPaths = ['/dashboard', '/profile', '/settings']; // Whitelisted paths
+        const safeRedirectTo = redirectTo && allowedPaths.includes(redirectTo) ? redirectTo : '/dashboard';
+        console.log('➡️ [Auth] Redirecting to:', safeRedirectTo);
 
         // Redirect to the target URL
-        safeRedirect(redirectTo);
+        safeRedirect(safeRedirectTo);
       } catch (e) {
         console.error('❌ [Auth] Unexpected error:', e);
         setError(e as Error);
