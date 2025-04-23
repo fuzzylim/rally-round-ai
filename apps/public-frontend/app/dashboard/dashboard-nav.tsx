@@ -5,18 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Button } from '@rallyround/ui';
-import { signOut } from '@rallyround/auth';
+import LogoutButton from '../components/auth/LogoutButton';
+import { useAuth } from '../components/auth/AuthProvider';
 
 export default function DashboardNav() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (!error) {
-      window.location.href = '/';
-    }
-  };
+  const { user } = useAuth();
   
   return (
     <nav className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-md">
@@ -82,7 +78,7 @@ export default function DashboardNav() {
             <Link href="/profile">
               <Button variant="outline" size="sm" className="mr-4 border-slate-600 text-slate-200 hover:bg-slate-800">Profile</Button>
             </Link>
-            <Button variant="outline" size="sm" onClick={handleSignOut} className="border-slate-600 text-slate-200 hover:bg-slate-800">Sign out</Button>
+            <LogoutButton variant="secondary" className="border-slate-600 text-slate-200 hover:bg-slate-800" />
           </div>
           <div className="-mr-2 flex items-center sm:hidden">
             <button
@@ -175,12 +171,9 @@ export default function DashboardNav() {
               >
                 Your Profile
               </Link>
-              <button
-                className="w-full text-left block px-4 py-2 text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800"
-                onClick={handleSignOut}
-              >
-                Sign out
-              </button>
+              <div className="px-4 py-2">
+                <LogoutButton variant="text" className="w-full text-left text-base font-medium text-slate-300 hover:text-white" />
+              </div>
             </div>
           </div>
         </div>
