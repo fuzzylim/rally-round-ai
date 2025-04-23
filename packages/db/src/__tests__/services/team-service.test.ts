@@ -113,8 +113,28 @@ describe('Team Service', () => {
       // Arrange
       const userId = 'user-123';
       const mockTeams = [
-        { id: 'team-123', name: 'Team 1', role: 'owner' },
-        { id: 'team-456', name: 'Team 2', role: 'member' },
+        {
+          id: 'team-123',
+          name: 'Team 1',
+          description: null,
+          sport: 'Soccer',
+          ageGroup: 'Adult',
+          logoUrl: null,
+          members: 1,
+          role: 'owner',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'team-456',
+          name: 'Team 2',
+          description: null,
+          sport: 'Basketball',
+          ageGroup: 'Youth',
+          logoUrl: null,
+          members: 2,
+          role: 'member',
+          createdAt: new Date().toISOString()
+        },
       ];
       
       vi.mocked(teamRepository.getUserTeams).mockResolvedValue(mockTeams);

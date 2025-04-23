@@ -32,16 +32,17 @@ export class OrganizationService {
       }
 
       // Create organization
-      const organization = await organizationRepository.createOrganization(params);
+      const result = await organizationRepository.createOrganization(params);
+      const createdOrg = result.organization;
       
       // Add creator as owner
       const membership = await organizationRepository.addOrganizationMember({
-        organizationId: organization.id,
+        organizationId: createdOrg.id,
         userId: params.createdById,
         role: 'owner'
       });
       
-      return { organization, membership };
+      return { organization: createdOrg, membership };
     } catch (error) {
       console.error('OrganizationService.createOrganization error:', error);
       throw new Error(`Failed to create organization: ${error instanceof Error ? error.message : String(error)}`);

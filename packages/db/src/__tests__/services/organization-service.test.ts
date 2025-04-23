@@ -28,15 +28,25 @@ describe('Organization Service', () => {
         createdById: 'user-123',
       };
       
-      const mockOrg = { id: 'org-123', ...orgData };
-      
-      vi.mocked(organizationRepository.createOrganization).mockResolvedValue(mockOrg);
-      vi.mocked(organizationRepository.addOrganizationMember).mockResolvedValue({
-        id: 'member-123',
-        organizationId: 'org-123',
-        userId: 'user-123',
-        role: 'owner',
-        createdAt: new Date(),
+      // Mock the repository implementation
+      vi.mocked(organizationRepository.createOrganization).mockResolvedValue({
+        organization: {
+          id: 'org-123',
+          name: 'Test Organization',
+          description: 'Test Description',
+          createdById: 'user-123',
+          logoUrl: null,
+          website: null,
+          members: 1,
+          teams: 0,
+          createdAt: new Date().toISOString()
+        },
+        membership: {
+          id: 'member-123',
+          organizationId: 'org-123',
+          userId: 'user-123',
+          role: 'owner'
+        }
       });
 
       // Act
@@ -51,12 +61,23 @@ describe('Organization Service', () => {
       });
       
       expect(result).toEqual({
-        organization: mockOrg,
-        membership: expect.objectContaining({
+        organization: {
+          id: 'org-123',
+          name: 'Test Organization',
+          description: 'Test Description',
+          createdById: 'user-123',
+          logoUrl: null,
+          website: null,
+          members: 1,
+          teams: 0,
+          createdAt: expect.any(String)
+        },
+        membership: {
+          id: 'member-123',
           organizationId: 'org-123',
           userId: 'user-123',
-          role: 'owner',
-        }),
+          role: 'owner'
+        }
       });
     });
   });
@@ -66,8 +87,28 @@ describe('Organization Service', () => {
       // Arrange
       const userId = 'user-123';
       const mockOrgs = [
-        { id: 'org-123', name: 'Org 1' },
-        { id: 'org-456', name: 'Org 2' },
+        { 
+          id: 'org-123', 
+          name: 'Org 1',
+          description: null,
+          logoUrl: null,
+          website: null,
+          members: 1,
+          teams: 0,
+          role: 'owner',
+          createdAt: new Date().toISOString() 
+        },
+        { 
+          id: 'org-456', 
+          name: 'Org 2',
+          description: 'Second org',
+          logoUrl: null,
+          website: null,
+          members: 2,
+          teams: 1,
+          role: 'member',
+          createdAt: new Date().toISOString() 
+        },
       ];
       
       vi.mocked(organizationRepository.getUserOrganizations).mockResolvedValue(mockOrgs);
@@ -85,7 +126,17 @@ describe('Organization Service', () => {
     it('should return existing default organization if it exists', async () => {
       // Arrange
       const userId = 'user-123';
-      const mockOrg = { id: 'org-123', name: 'Default Org' };
+      const mockOrg = { 
+        id: 'org-123', 
+        name: 'Default Org',
+        description: 'Default organization',
+        logoUrl: null,
+        website: null,
+        createdById: 'user-123',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isActive: true
+      };
       
       vi.mocked(organizationRepository.getDefaultOrganizationForUser).mockResolvedValue(mockOrg);
 
@@ -100,16 +151,22 @@ describe('Organization Service', () => {
     it('should create a default organization if none exists', async () => {
       // Arrange
       const userId = 'user-123';
-      const mockOrg = { id: 'org-123', name: 'My Organization' };
       
+      // Mock the repository implementation
       vi.mocked(organizationRepository.getDefaultOrganizationForUser).mockResolvedValue(null);
-      vi.mocked(organizationRepository.createOrganization).mockResolvedValue(mockOrg);
-      vi.mocked(organizationRepository.addOrganizationMember).mockResolvedValue({
-        id: 'member-123',
-        organizationId: 'org-123',
-        userId,
-        role: 'owner',
-        createdAt: new Date(),
+      vi.mocked(organizationRepository.createOrganization).mockResolvedValue({
+        organization: {
+          id: 'org-123',
+          name: 'My Organization',
+          description: 'Personal organization',
+          createdById: 'user-123'
+        },
+        membership: {
+          id: 'member-123',
+          organizationId: 'org-123',
+          userId: 'user-123',
+          role: 'owner'
+        }
       });
 
       // Act
@@ -123,7 +180,12 @@ describe('Organization Service', () => {
           createdById: userId,
         })
       );
-      expect(result).toEqual(mockOrg);
+      expect(result).toEqual({
+          id: 'org-123',
+          name: 'My Organization',
+          description: 'Personal organization',
+          createdById: 'user-123'
+      });
     });
   });
 

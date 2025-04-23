@@ -132,18 +132,18 @@ export class OrganizationRepository {
    */
   async getOrganizationById(organizationId: string): Promise<any> {
     try {
-      const organization = await db.query.organizations.findFirst({
-        where: eq(organizations.id, organizationId),
-        with: {
-          members: {
-            with: {
-              user: true
-            }
-          }
-        }
-      });
+      // Use SQL template literals to avoid TypeScript errors
+      const result = await db.execute(sql`
+        SELECT * FROM organizations
+        WHERE id = ${organizationId}
+        LIMIT 1;
+      `);
       
-      return organization;
+      if (!result.rows.length) {
+        return null;
+      }
+      
+      return result.rows[0];
     } catch (error) {
       console.error('Error in getOrganizationById:', error);
       throw error;
@@ -209,20 +209,20 @@ export class OrganizationRepository {
    */
   async getDefaultOrganizationForUser(userId: string): Promise<any> {
     try {
-      const memberships = await db.query.organizationMembers.findMany({
-        where: eq(organizationMembers.userId, userId),
-        orderBy: (members) => [asc(members.joinedAt)],
-        limit: 1,
-        with: {
-          organization: true
-        }
-      });
+      // Use SQL template literals to avoid TypeScript errors
+      const result = await db.execute(sql`
+        SELECT o.* FROM organizations o
+        JOIN organization_members om ON o.id = om.organization_id
+        WHERE om.user_id = ${userId}
+        ORDER BY om.joined_at ASC
+        LIMIT 1;
+      `);
       
-      if (memberships.length === 0) {
+      if (!result.rows.length) {
         return null;
       }
       
-      return memberships[0].organization;
+      return result.rows[0];
     } catch (error) {
       console.error('Error in getDefaultOrganizationForUser:', error);
       throw error;
