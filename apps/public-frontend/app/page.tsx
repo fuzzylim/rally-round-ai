@@ -6,29 +6,41 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-950">
       <header className="bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4 flex justify-between items-center">
+          {/* Logo - simplified for mobile */}
           <div className="flex items-center gap-2">
             <Image 
               src="/heart-blue-pink.svg" 
               alt="" 
-              width={32} 
-              height={32} 
-              className="h-8 w-8" 
+              width={28} 
+              height={28} 
+              className="h-7 w-7 sm:h-8 sm:w-8" 
             />
-            <h1 className="text-3xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
           </div>
+
+          {/* Desktop navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link href="/fundraisers" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Fundraisers</Link>
             <Link href="/competitions" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Competitions</Link>
             <Link href="/teams" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Teams</Link>
             <Link href="/about" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">About Us</Link>
           </nav>
-          <div className="flex items-center space-x-4">
+
+          {/* Auth buttons - responsive sizing */}
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <Link href="/login">
-              <Button variant="outline" className="border-slate-600 text-slate-200 hover:bg-slate-800">Log in</Button>
+              <Button 
+                variant="outline" 
+                className="border-slate-600 text-slate-200 hover:bg-slate-800 px-3 py-1 text-sm sm:px-4 sm:py-2 sm:text-base">
+                Log in
+              </Button>
             </Link>
             <Link href="/signup">
-              <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Sign up</Button>
+              <Button 
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-3 py-1 text-sm sm:px-4 sm:py-2 sm:text-base">
+                Sign up
+              </Button>
             </Link>
           </div>
         </div>
