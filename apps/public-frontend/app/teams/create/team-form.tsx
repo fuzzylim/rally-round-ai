@@ -239,13 +239,13 @@ export default function TeamForm() {
           <select
             id="organizationId"
             name="organizationId"
-            value={formData.organizationId}
+            value={formData.organizationId || ''}
             onChange={handleChange}
             className="shadow-sm block w-full sm:text-sm bg-slate-900/50 text-white border-slate-600 rounded-md p-2 border focus:border-blue-500 focus:ring-blue-500"
             required
           >
             <option value="">Select an organization</option>
-            {organizations.map((org) => (
+            {organizations && organizations.length > 0 && organizations.map((org) => (
               <option key={org.id} value={org.id}>
                 {org.name}
               </option>

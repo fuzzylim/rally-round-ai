@@ -20,8 +20,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Route temporarily disabled for deployment
-    return NextResponse.json({ organizations: [] }, { status: 200 });
+    // Mock data for deployment testing
+    const mockOrganizations = [
+      {
+        id: 'org-1',
+        name: 'Default Organization',
+        description: 'This is a mock organization for testing',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    ];
+    
+    // Return mock data
+    return NextResponse.json(mockOrganizations, { status: 200 });
   } catch (error) {
     console.error('Error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
