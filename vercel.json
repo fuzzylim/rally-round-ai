@@ -4,5 +4,5 @@
   "buildCommand": "cd packages/db && pnpm build && cd ../../apps/public-frontend && pnpm vercel-build",
   "outputDirectory": "apps/public-frontend/.next",
   "framework": "nextjs",
-  "ignoreCommand": "pnpm exec turbo-ignore"
+  "ignoreCommand": "node apps/public-frontend/turbo-ignore.js"
 }
