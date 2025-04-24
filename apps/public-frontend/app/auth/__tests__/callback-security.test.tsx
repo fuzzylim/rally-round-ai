@@ -5,6 +5,8 @@
  * has been properly fixed.
  */
 
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
+
 // Mock DOMPurify
 jest.mock('dompurify', () => ({
   sanitize: jest.fn(url => url) // Return the same URL for testing
