@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@supabase/supabase-js'
 
 const logPrefix = '[Auth] '
 
@@ -75,7 +75,33 @@ export async function middleware(request: NextRequest) {
   
   // STEP 4: For known routes, check authentication
   const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req: request, res });
+  
+  // Create a secure Supabase client
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  // Extract auth token from cookies securely
+  const authCookie = request.cookies.get('sb-auth-token')?.value;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    log(`[${requestId}] Missing Supabase configuration`);
+    return NextResponse.redirect(new URL('/error', request.url));
+  }
+  
+  // Create client with secure configuration
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    },
+    global: {
+      headers: {
+        Authorization: authCookie ? `Bearer ${authCookie}` : ''
+      }
+    }
+  });
+  
   const { data: { session } } = await supabase.auth.getSession();
   
   log(`[${requestId}] Session state:`, { 

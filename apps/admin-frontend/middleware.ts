@@ -1,19 +1,35 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { hasAccess, checkAccess } from '@rallyround/rbac'
 
 export async function middleware(request: NextRequest) {
-  // Create a Supabase client configured to use cookies
-  const cookieStore = {
-    get: (name: string) => request.cookies.get(name)
+  // Create a Supabase client with secure configuration
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  
+  // Extract the session token from cookies securely
+  const authCookie = request.cookies.get('sb-auth-token')?.value
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.error('[Auth] Missing Supabase configuration')
+    return NextResponse.redirect(new URL('/error', request.nextUrl.origin))
   }
   
-  const supabase = createRouteHandlerClient(
-    { cookies: () => cookieStore as any }
-  )
-
+  // Create the Supabase client directly with proper auth
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false
+    },
+    global: {
+      headers: {
+        Authorization: authCookie ? `Bearer ${authCookie}` : ''
+      }
+    }
+  })
+  
   // Get the user's session
   const { data: { session } } = await supabase.auth.getSession()
 
