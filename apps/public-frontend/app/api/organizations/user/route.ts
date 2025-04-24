@@ -1,8 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-// Import removed temporarily for deployment
-// import { organizationService } from '@rallyround/db';
+import { organizationService } from '@rallyround/db';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,19 +19,26 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Mock data for deployment testing
-    const mockOrganizations = [
-      {
-        id: 'org-1',
-        name: 'Default Organization',
-        description: 'This is a mock organization for testing',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-    ];
+    const userId = session.user.id;
     
-    // Return mock data
-    return NextResponse.json(mockOrganizations, { status: 200 });
+    // Get organizations for this user
+    const organizations = await organizationService.getUserOrganizations(userId);
+    
+    // If the user has no organizations, create a default one
+    if (organizations.length === 0) {
+      const userProfile = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', userId)
+        .single();
+      
+      const userName = userProfile.data?.full_name || session.user.email || 'User';
+      const organization = await organizationService.getOrCreateDefaultOrganization(userId, userName);
+      
+      return NextResponse.json([organization], { status: 200 });
+    }
+    
+    return NextResponse.json(organizations, { status: 200 });
   } catch (error) {
     console.error('Error in route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
