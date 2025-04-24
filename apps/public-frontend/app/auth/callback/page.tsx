@@ -5,7 +5,17 @@ import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
 
-function safeRedirect(url: string) {
+/**
+ * Safely redirect to a URL after validating it
+ * 
+ * This prevents open redirect vulnerabilities by ensuring the URL is either:
+ * 1. A relative path (starts with /)
+ * 2. A trusted domain that's part of our application
+ * 
+ * @param url The URL to redirect to
+ * @returns void
+ */
+export function safeRedirect(url: string) {
   // Add a delay to ensure logs are visible and session is set
   console.log('⏳ [Auth] Waiting for session to settle before redirect...');
   setTimeout(() => {

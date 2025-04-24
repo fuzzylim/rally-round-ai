@@ -12,7 +12,7 @@ const mockNext = jest.fn();
 // Mock the next/server module
 jest.mock('next/server', () => ({
   NextResponse: {
-    redirect: (url) => {
+    redirect: (url: URL) => {
       mockRedirect(url.toString());
       return { status: 307, headers: new Map([['location', url.toString()]]) };
     },
@@ -25,8 +25,9 @@ jest.mock('next/server', () => ({
 
 // Mock the Supabase client
 const mockGetSession = jest.fn();
-jest.mock('@supabase/auth-helpers-nextjs', () => ({
-  createMiddlewareClient: jest.fn().mockImplementation(() => ({
+const mockCreateClient = jest.fn();
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: jest.fn().mockImplementation(() => ({
     auth: {
       getSession: mockGetSession,
     },
@@ -39,16 +40,65 @@ console.log = jest.fn();
 // Import the middleware after mocks are set up
 import { middleware } from './middleware';
 
-// Create a simplified mock request for testing
-function makeRequest(path: string, search: string = '') {
+// Create a mock NextRequest for testing with cookie support
+function makeRequest(path: string, search: string = '', authToken: string | null = null) {
+  // Create a proper cookies implementation for our security tests
+  const cookiesMap = new Map<string, { name: string, value: string }>();
+  
+  // Add auth token cookie if provided
+  if (authToken) {
+    cookiesMap.set('sb-auth-token', {
+      name: 'sb-auth-token',
+      value: authToken
+    });
+  }
+  
+  // Mock the NextRequest with all required properties
   return {
     nextUrl: {
       pathname: path,
       searchParams: new URLSearchParams(search),
+      origin: 'http://localhost',
     },
-    url: `http://localhost${path}${search}`,
+    url: `http://localhost${path}${search ? `?${search}` : ''}`,
     headers: new Headers(),
+    cookies: {
+      get: (name: string) => cookiesMap.get(name) || null,
+      getAll: () => Array.from(cookiesMap.values()),
+      has: (name: string) => cookiesMap.has(name),
+      delete: jest.fn(),
+      clear: jest.fn(),
+      toString: jest.fn(),
+      [Symbol.iterator]: function* () {
+        yield* cookiesMap.values();
+      }
+    },
     clone: () => ({}),
+    // Add other properties required by NextRequest
+    ip: '127.0.0.1',
+    geo: { country: 'US' },
+    ua: { isBot: false },
+    method: 'GET',
+    credentials: 'same-origin',
+    cache: 'default',
+    redirect: 'follow',
+    bodyUsed: false,
+    referrer: '',
+    referrerPolicy: '',
+    integrity: '',
+    keepalive: false,
+    isHistoryNavigation: false,
+    mode: 'cors',
+    destination: '',
+    body: null,
+    signal: { aborted: false } as any,
+    formData: jest.fn(),
+    json: jest.fn(),
+    text: jest.fn(),
+    arrayBuffer: jest.fn(),
+    blob: jest.fn(),
+    page: { name: 'test' } as any,
+    [Symbol.toStringTag]: 'NextRequest'
   };
 }
 
