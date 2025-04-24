@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
 
+const ALLOWED_REDIRECT_PATHS = ['/dashboard', '/profile', '/settings'];
+
 function isSafeRedirectUrl(url: string): boolean {
   try {
     const parsedUrl = new URL(url, window.location.origin);
-    // Allow only relative URLs or URLs with the same origin
-    return parsedUrl.origin === window.location.origin;
+    // Allow only paths in the whitelist
+    return ALLOWED_REDIRECT_PATHS.includes(parsedUrl.pathname);
   } catch {
     return false; // Invalid URLs are not safe
   }
@@ -87,7 +89,7 @@ export default function AuthCallbackPage() {
         // Get the redirect URL
         const params = new URLSearchParams(window.location.search);
         const redirectTo = params.get('redirect') || '/dashboard';
-        const safeRedirectTo = isSafeRedirectUrl(redirectTo) ? redirectTo : '/dashboard';
+        const safeRedirectTo = ALLOWED_REDIRECT_PATHS.includes(redirectTo) ? redirectTo : '/dashboard';
         console.log('➡️ [Auth] Redirecting to:', safeRedirectTo);
 
         // Redirect to the target URL
