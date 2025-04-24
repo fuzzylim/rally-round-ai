@@ -59,9 +59,8 @@ function safeRedirect(url: string) {
   console.log('⏳ [Auth] Waiting for session to settle before redirect...');
   setTimeout(() => {
     console.log('➡️ [Auth] Redirecting to:', safeUrl);
-    const sanitizedUrl = DOMPurify.sanitize(safeUrl);
-    window.location.href = sanitizedUrl;
-  }, 1000);
+    const encodedUrl = encodeURI(safeUrl);
+    window.location.href = encodedUrl;
 }
 
 export default function AuthCallbackPage() {
