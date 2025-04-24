@@ -3,5 +3,6 @@
   "installCommand": "pnpm install",
   "buildCommand": "cd packages/db && pnpm build && cd ../../apps/public-frontend && pnpm vercel-build",
   "outputDirectory": "apps/public-frontend/.next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "ignoreCommand": "pnpm exec turbo-ignore"
 }
