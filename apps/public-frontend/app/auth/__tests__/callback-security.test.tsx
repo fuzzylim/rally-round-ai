@@ -7,13 +7,12 @@
 
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
-// Mock DOMPurify
-jest.mock('dompurify', () => ({
-  sanitize: jest.fn(url => url) // Return the same URL for testing
-}));
+// We'll use a simple mock for DOMPurify instead of trying to mock the module
+const mockDOMPurify = {
+  sanitize: (url: string) => url // Simple mock that returns the input
+};
 
-// Import the mocked DOMPurify
-import DOMPurify from 'dompurify';
+// We'll use this mock in our tests instead of trying to mock the actual module
 
 // We need to manually create versions of the private functions from page.tsx
 // since they are not exported directly
@@ -22,6 +21,10 @@ const ALLOWED_REDIRECT_PATHS = ['/dashboard', '/profile', '/settings'];
 function isSafeRedirectUrl(url: string): boolean {
   try {
     const parsedUrl = new URL(url, window.location.origin);
+    // Check if the URL is external (different origin than the current page)
+    if (parsedUrl.origin !== window.location.origin) {
+      return false;
+    }
     // Allow only paths in the whitelist
     return ALLOWED_REDIRECT_PATHS.includes(parsedUrl.pathname);
   } catch {
@@ -126,7 +129,7 @@ describe('Authentication redirect security', () => {
     // Recreate the safeRedirect function from the implementation
     function safeRedirect(url: string) {
       if (isSafeRedirectUrl(url)) {
-        const sanitizedUrl = DOMPurify.sanitize(url);
+        const sanitizedUrl = mockDOMPurify.sanitize(url);
         window.location.href = sanitizedUrl;
       } else {
         console.warn('⚠️ [Auth] Unsafe redirect URL, defaulting to /dashboard');
@@ -137,6 +140,7 @@ describe('Authentication redirect security', () => {
     beforeEach(() => {
       window.location.href = '';
       jest.clearAllMocks();
+      // Reset window location before each test
     });
     
     it('should redirect to whitelisted paths', () => {
@@ -154,16 +158,23 @@ describe('Authentication redirect security', () => {
       expect(window.location.href).toBe('/dashboard');
     });
     
-    it('should sanitize URLs using DOMPurify', () => {
-      safeRedirect('/dashboard');
-      expect(DOMPurify.sanitize).toHaveBeenCalledWith('/dashboard');
+    it('should sanitize URLs before redirecting', () => {
+      // Create a spy on our mock object
+      const sanitizeSpy = jest.spyOn(mockDOMPurify, 'sanitize');
       
-      // Reset mock
-      jest.clearAllMocks();
+      // Test basic sanitization
+      safeRedirect('/dashboard');
+      expect(sanitizeSpy).toHaveBeenCalledWith('/dashboard');
+      
+      // Reset the spy
+      sanitizeSpy.mockClear();
       
       // Test with a query parameter
       safeRedirect('/dashboard?query=value');
-      expect(DOMPurify.sanitize).toHaveBeenCalledWith('/dashboard?query=value');
+      expect(sanitizeSpy).toHaveBeenCalledWith('/dashboard?query=value');
+      
+      // Clean up
+      sanitizeSpy.mockRestore();
     });
   });
   
