@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
@@ -58,7 +59,8 @@ function safeRedirect(url: string) {
   console.log('⏳ [Auth] Waiting for session to settle before redirect...');
   setTimeout(() => {
     console.log('➡️ [Auth] Redirecting to:', safeUrl);
-    window.location.href = safeUrl;
+    const sanitizedUrl = DOMPurify.sanitize(safeUrl);
+    window.location.href = sanitizedUrl;
   }, 1000);
 }
 
