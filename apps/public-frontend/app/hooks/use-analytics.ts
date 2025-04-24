@@ -35,9 +35,7 @@ export function useAnalytics() {
   return { trackEvent };
 }
 
-// Add type definition for window.va
-declare global {
-  interface Window {
-    va: (event: string, options?: any) => void;
-  }
+// Add type definition for window.va - with correct modifiers
+interface Window {
+  va?: (event: string, options?: any) => void;
 }

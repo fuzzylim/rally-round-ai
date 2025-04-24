@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import DashboardNav from '../../dashboard/dashboard-nav';
 import TeamForm from './team-form';
 
@@ -15,7 +16,9 @@ export default function CreateTeamPage() {
         </div>
         
         <div className="mt-6">
-          <TeamForm />
+          <Suspense fallback={<div className="p-4 text-white">Loading team form...</div>}>
+            <TeamForm />
+          </Suspense>
         </div>
       </main>
     </div>

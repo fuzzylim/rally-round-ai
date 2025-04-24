@@ -1,0 +1,45 @@
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
+import DashboardNav from '../../dashboard/dashboard-nav';
+
+// Using the standard Next.js page props interface for compatibility
+type TeamPageParams = {
+  id: string;
+};
+
+type TeamPageProps = {
+  params: TeamPageParams;
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+// Temporary placeholder for team data fetching
+// Will be reimplemented after successful deployment
+
+// Temporary simplified version for deployment
+export default async function TeamPage({ params }: TeamPageProps) {
+  const supabase = createServerComponentClient({ cookies });
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (!session) {
+    return notFound();
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <DashboardNav />
+      
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow rounded-lg overflow-hidden p-6 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Team Page</h1>
+          <p className="text-gray-600 text-lg mb-6">Team ID: {params.id}</p>
+          <p className="text-sm text-red-600">
+            Team details are temporarily unavailable during deployment.
+            <br />
+            This page will be fully functional after the deployment is complete.
+          </p>
+        </div>
+      </main>
+    </div>
+  );
+}
