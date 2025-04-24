@@ -5,12 +5,60 @@ import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
 
+/**
+ * Safely redirect to a URL after validating it
+ * 
+ * This prevents open redirect vulnerabilities by ensuring the URL is either:
+ * 1. A relative path (starts with /)
+ * 2. A trusted domain that's part of our application
+ * 
+ * @param url The URL to redirect to
+ * @returns void
+ */
 function safeRedirect(url: string) {
+  // List of trusted domains for our application
+  const trustedDomains = [
+    'rallyround.club',
+    'app.rallyround.club',
+    'api.rallyround.club',
+    'localhost',
+    '127.0.0.1',
+    'vercel.app'
+  ];
+
+  // Validate the URL
+  let isValid = false;
+  
+  try {
+    // If URL is relative (starts with /), it's safe
+    if (url.startsWith('/')) {
+      isValid = true;
+    } else {
+      // For absolute URLs, check if the domain is trusted
+      const urlObj = new URL(url);
+      isValid = trustedDomains.some(domain => 
+        urlObj.hostname === domain || 
+        urlObj.hostname.endsWith(`.${domain}`)
+      );
+    }
+  } catch (e) {
+    // If URL parsing fails, it's invalid
+    console.error('⚠️ [Auth] Invalid redirect URL:', url);
+    isValid = false;
+  }
+
+  // If URL is invalid, redirect to dashboard as fallback
+  const safeUrl = isValid ? url : '/dashboard';
+  
+  if (!isValid) {
+    console.warn('⚠️ [Auth] Redirect URL not trusted, using fallback:', safeUrl);
+  }
+
   // Add a delay to ensure logs are visible and session is set
   console.log('⏳ [Auth] Waiting for session to settle before redirect...');
   setTimeout(() => {
-    console.log('➡️ [Auth] Redirecting to:', url);
-    window.location.href = url;
+    console.log('➡️ [Auth] Redirecting to:', safeUrl);
+    window.location.href = safeUrl;
   }, 1000);
 }
 
