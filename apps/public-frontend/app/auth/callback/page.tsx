@@ -1,16 +1,35 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { AuthErrorBoundary } from '../../components/auth/AuthErrorBoundary';
+
+const ALLOWED_REDIRECT_PATHS = ['/dashboard', '/profile', '/settings'];
+
+function isSafeRedirectUrl(url: string): boolean {
+  try {
+    const parsedUrl = new URL(url, window.location.origin);
+    // Allow only paths in the whitelist
+    return ALLOWED_REDIRECT_PATHS.includes(parsedUrl.pathname);
+  } catch {
+    return false; // Invalid URLs are not safe
+  }
+}
 
 function safeRedirect(url: string) {
   // Add a delay to ensure logs are visible and session is set
   console.log('⏳ [Auth] Waiting for session to settle before redirect...');
   setTimeout(() => {
-    console.log('➡️ [Auth] Redirecting to:', url);
-    window.location.href = url;
+    if (isSafeRedirectUrl(url)) {
+      const sanitizedUrl = DOMPurify.sanitize(url);
+      console.log('➡️ [Auth] Redirecting to:', sanitizedUrl);
+      window.location.href = sanitizedUrl;
+    } else {
+      console.warn('⚠️ [Auth] Unsafe redirect URL, defaulting to /dashboard');
+      window.location.href = '/dashboard';
+    }
   }, 1000);
 }
 
@@ -70,10 +89,11 @@ export default function AuthCallbackPage() {
         // Get the redirect URL
         const params = new URLSearchParams(window.location.search);
         const redirectTo = params.get('redirect') || '/dashboard';
-        console.log('➡️ [Auth] Redirecting to:', redirectTo);
+        const safeRedirectTo = ALLOWED_REDIRECT_PATHS.includes(redirectTo) ? redirectTo : '/dashboard';
+        console.log('➡️ [Auth] Redirecting to:', safeRedirectTo);
 
         // Redirect to the target URL
-        safeRedirect(redirectTo);
+        safeRedirect(safeRedirectTo);
       } catch (e) {
         console.error('❌ [Auth] Unexpected error:', e);
         setError(e as Error);
