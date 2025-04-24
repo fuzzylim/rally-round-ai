@@ -1,86 +1,69 @@
 import Link from 'next/link';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@rallyround/ui';
+import { Button } from '@rallyround/ui';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
-// In a real app, this would fetch data from Supabase
-async function getTeams() {
-  // Simulating API call with a delay
-  await new Promise(resolve => setTimeout(resolve, 500));
+// Import removed temporarily for deployment
+// import { teamService, TeamWithMembership } from '@rallyround/db';
+
+// Temporary type definition for deployment
+type TeamWithMembership = {
+  id: string;
+  name: string;
+  sport: string;
+  ageGroup: string;
+  logoUrl?: string | null;
+  members: number;
+  role: string;
+};
+
+// Temporary mock function for deployment
+async function getTeams(): Promise<TeamWithMembership[]> {
+  // We'll return an empty array during deployment
+  const supabase = createServerComponentClient({ cookies });
   
-  return [
-    {
-      id: '1',
-      name: 'Eastside Tigers',
-      sport: 'Basketball',
-      ageGroup: 'U16',
-      members: 12,
-      image: '/team-placeholder.jpg',
-      role: 'Manager'
-    },
-    {
-      id: '2',
-      name: 'Central High School',
-      sport: 'Athletics',
-      ageGroup: 'Varsity',
-      members: 28,
-      image: '/team-placeholder.jpg',
-      role: 'Member'
-    },
-    {
-      id: '3',
-      name: 'Metro Soccer Club',
-      sport: 'Soccer',
-      ageGroup: 'U14',
-      members: 18,
-      image: '/team-placeholder.jpg',
-      role: 'Coach'
-    },
-    {
-      id: '4',
-      name: 'West County Swimming',
-      sport: 'Swimming',
-      ageGroup: 'Junior',
-      members: 15,
-      image: '/team-placeholder.jpg',
-      role: 'Member'
-    }
-  ];
+  // Check if user is authenticated
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    return [];
+  }
+  
+  console.log('Using temporary mock teams data for deployment');
+  return [];
 }
 
 export default async function TeamsList() {
-  const teams = await getTeams();
-  
-  return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {teams.map((team) => (
-        <Card key={team.id} className="overflow-hidden">
-          <div className="h-32 bg-gray-300 w-full">
-            {/* In a real app, this would be a proper image */}
-            <div className="h-full w-full flex items-center justify-center bg-blue-100">
-              <span className="text-lg font-bold text-blue-800">{team.name.substring(0, 2)}</span>
-            </div>
-          </div>
-          <CardHeader>
-            <CardTitle>{team.name}</CardTitle>
-            <div className="flex items-center mt-1">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {team.sport}
-              </span>
-              <span className="ml-2 text-sm text-gray-500">{team.ageGroup}</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-500">
-                <p>{team.members} members</p>
-                <p className="font-medium text-gray-700">Your role: {team.role}</p>
-              </div>
-              <Link href={`/teams/${team.id}`}>
-                <Button variant="outline" size="sm">View Team</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+  try {
+    const teams = await getTeams();
+    
+    // Teams will always be empty during deployment
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-lg font-medium text-white mb-2">Teams Feature Temporarily Disabled</h3>
+        <p className="text-slate-400 mb-6">
+          The teams feature is temporarily disabled during deployment.
+          <br />
+          Please check back after the deployment is complete.
+        </p>
+        <Link href="/">
+          <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">
+            Return Home
+          </Button>
+        </Link>
+      </div>
+    );
+  } catch (error) {
+    console.error('Error in TeamsList component:', error);
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-lg font-medium text-white mb-2">Error loading teams</h3>
+        <p className="text-red-400 mb-6">The teams feature is temporarily unavailable.</p>
+        <Link href="/">
+          <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">
+            Return Home
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 }

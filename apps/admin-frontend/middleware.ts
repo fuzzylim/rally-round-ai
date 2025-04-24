@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { cookies } from 'next/headers'
 import { hasAccess, checkAccess } from '@rallyround/rbac'
 
 export async function middleware(request: NextRequest) {
   // Create a Supabase client configured to use cookies
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  const supabase = createClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      get(name: string) {
-        return request.cookies.get(name)?.value
-      },
-    },
-  })
+  const cookieStore = {
+    get: (name: string) => request.cookies.get(name)
+  }
+  
+  const supabase = createRouteHandlerClient(
+    { cookies: () => cookieStore as any }
+  )
 
   // Get the user's session
   const { data: { session } } = await supabase.auth.getSession()

@@ -50,10 +50,12 @@ This section covers current initiatives and features under active development fo
     - Team creation and invitation system
     - Member roles and permissions
     - Team activity tracking dashboard
-  - **Fundraising Module**:
-    - Campaign creation and management
-    - Donation collection integration
-    - Progress tracking and reporting
+  - **Financial Management**:
+    - Event budgeting and cost tracking
+    - Fundraising campaign management
+    - Payment processing integration
+    - Financial reporting and analytics
+    - Expense tracking for team activities
 - **Priority**: High - Required for private beta
 - **Status**: In progress
 
