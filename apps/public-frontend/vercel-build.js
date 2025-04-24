@@ -56,6 +56,36 @@ try {
     try {
       process.chdir(pkg.path);
       execSync('pnpm build', { stdio: 'inherit' });
+      
+      // Ensure TypeScript declarations are available for the consumer app
+      const hasTypes = fs.existsSync(path.join(pkg.path, 'dist/src/index.d.ts'));
+      if (!hasTypes) {
+        console.log(`${colors.yellow}No declaration files found, creating them...${colors.reset}`);
+        
+        // Copy types.d.ts to the dist folder if it exists
+        const typesDtsPath = path.join(pkg.path, 'src/types.d.ts');
+        if (fs.existsSync(typesDtsPath)) {
+          const destPath = path.join(pkg.path, 'dist/src/types.d.ts');
+          fs.copyFileSync(typesDtsPath, destPath);
+          console.log(`${colors.green}✅ Copied types declaration file${colors.reset}`);
+        }
+        
+        // Create an index.d.ts file with export declarations
+        const indexDtsPath = path.join(pkg.path, 'dist/src/index.d.ts');
+        const indexDtsContent = `// Generated type declarations
+        
+// Import types from the module declaration
+/// <reference path="./types.d.ts" />
+
+// Export services
+export declare const organizationService: import('@rallyround/db').OrganizationService;
+export declare const organizationRepository: import('@rallyround/db').OrganizationRepository;
+`;
+        
+        fs.writeFileSync(indexDtsPath, indexDtsContent);
+        console.log(`${colors.green}✅ Created index.d.ts declaration file${colors.reset}`);
+      }
+      
       console.log(`${colors.green}✅ Successfully built ${pkg.name} package${colors.reset}`);
     } catch (err) {
       console.error(`${colors.red}❌ Error building ${pkg.name}: ${err.message}${colors.reset}`);
@@ -128,6 +158,29 @@ export const organizationRepository: OrganizationRepository;
   `;
   
   fs.writeFileSync(dtsPath, dtsContent);
+  
+  // Create a module declaration file at the root level for better TypeScript resolution
+  const rootDtsPath = path.join(pkgPath, 'dist/index.d.ts');
+  const rootDtsContent = `// Root module declaration
+export * from './src/index';
+`;
+  
+  fs.writeFileSync(rootDtsPath, rootDtsContent);
+  
+  // Create package-level type declaration for module resolution
+  const packageDtsPath = path.join(rootDir, 'packages', pkgName, '@rallyround-db.d.ts');
+  const packageDtsContent = `// Global module declaration
+declare module '@rallyround/db' {
+  export * from './dist/src/index';
+}
+`;
+  
+  try {
+    fs.writeFileSync(packageDtsPath, packageDtsContent);
+    console.log(`${colors.green}✅ Created global module declaration for @rallyround/${pkgName}${colors.reset}`);
+  } catch (err) {
+    console.log(`${colors.yellow}Could not create global module declaration, but proceeding${colors.reset}`);
+  }
   
   console.log(`${colors.green}✅ Created fallback module for ${pkgName}${colors.reset}`);
 }
