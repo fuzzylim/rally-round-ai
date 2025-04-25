@@ -43,34 +43,34 @@ export default function DashboardNav() {
                 Dashboard
               </Link>
               <Link 
-                href="/fundraisers" 
+                href="/events" 
                 className={`${
-                  pathname.startsWith('/fundraisers') 
-                    ? 'border-blue-500 text-gray-900' 
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  pathname.startsWith('/events') 
+                    ? 'border-blue-500 text-white' 
+                    : 'border-transparent text-slate-300 hover:border-slate-400 hover:text-white'
                 } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
-                Fundraisers
+                Events
               </Link>
               <Link 
-                href="/competitions" 
+                href="/clubs" 
                 className={`${
-                  pathname.startsWith('/competitions') 
-                    ? 'border-blue-500 text-gray-900' 
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  pathname.startsWith('/clubs') 
+                    ? 'border-blue-500 text-white' 
+                    : 'border-transparent text-slate-300 hover:border-slate-400 hover:text-white'
                 } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
-                Competitions
+                Clubs
               </Link>
               <Link 
-                href="/teams" 
+                href="/finances" 
                 className={`${
-                  pathname.startsWith('/teams') 
-                    ? 'border-blue-500 text-gray-900' 
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  pathname.startsWith('/finances') 
+                    ? 'border-blue-500 text-white' 
+                    : 'border-transparent text-slate-300 hover:border-slate-400 hover:text-white'
                 } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
               >
-                Teams
+                Finances
               </Link>
             </div>
           </div>
@@ -118,37 +118,48 @@ export default function DashboardNav() {
               Dashboard
             </Link>
             <Link 
-              href="/fundraisers" 
+              href="/events" 
               className={`${
-                pathname.startsWith('/fundraisers') 
-                  ? 'bg-blue-50 border-blue-500 text-blue-700' 
-                  : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                pathname.startsWith('/events') 
+                  ? 'bg-slate-800 border-blue-500 text-white' 
+                  : 'border-transparent text-slate-300 hover:bg-slate-800 hover:border-slate-400 hover:text-white'
               } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Fundraisers
+              Events
+            </Link>
+            <Link 
+              href="/clubs" 
+              className={`${
+                pathname.startsWith('/clubs') 
+                  ? 'bg-slate-800 border-blue-500 text-white' 
+                  : 'border-transparent text-slate-300 hover:bg-slate-800 hover:border-slate-400 hover:text-white'
+              } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Clubs
             </Link>
             <Link 
               href="/competitions" 
               className={`${
                 pathname.startsWith('/competitions') 
-                  ? 'bg-blue-50 border-blue-500 text-blue-700' 
-                  : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                  ? 'bg-slate-800 border-blue-500 text-white' 
+                  : 'border-transparent text-slate-300 hover:bg-slate-800 hover:border-slate-400 hover:text-white'
               } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Competitions
             </Link>
             <Link 
-              href="/teams" 
+              href="/finances" 
               className={`${
-                pathname.startsWith('/teams') 
-                  ? 'bg-blue-50 border-blue-500 text-blue-700' 
-                  : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                pathname.startsWith('/finances') 
+                  ? 'bg-slate-800 border-blue-500 text-white' 
+                  : 'border-transparent text-slate-300 hover:bg-slate-800 hover:border-slate-400 hover:text-white'
               } block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Teams
+              Finances
             </Link>
           </div>
           <div className="pt-4 pb-3 border-t border-slate-800">

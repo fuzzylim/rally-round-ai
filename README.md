@@ -1,34 +1,37 @@
 # RallyRound
 
-A modern digital business platform for sports clubs, schools, and community groups built with Turborepo and Next.js 15.
+A streamlined platform that helps Aussie social clubs organise meet-ups and manage finances with minimal screen time, built with Turborepo and Next.js 15.
 
 ## Overview
 
-RallyRound helps organizations with:
-- **Community Fundraising**: Raise funds for equipment, travel, or facilities
-- **Sports Competitions**: Organize tournaments, meets, and other sporting events
-- **Team Management**: Create and manage teams for various activities
-- **Member Coordination**: Keep track of members and their participation
-- **Community Building**: Bring people together around shared interests
+RallyRound helps Aussie social clubs spend less time online and more time together:
+- **Quick Event Setup**: Set up meet-ups in under 2 minutes so you can get back to real life
+- **No-Fuss Finances**: Sort the money stuff without spreadsheet headaches
+- **Member Connections**: Maintain your crew with minimal admin hassle
+- **Simplified Admin**: Get organised fast with intuitive tools
+- **Real-Life Connections**: Focus on face-to-face time, not screen time
 
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
-- **Auth & Database**: Supabase
+- **Auth & Database**: Supabase with Drizzle ORM
 - **Access Control**: Role-based permissions using a Zanzibar-style rules module
 - **Build System**: Turborepo
-- **Styling**: Tailwind CSS + shadcn/ui
+- **Styling**: Tailwind CSS + shadcn/ui with custom dark theme
 - **Deployment**: Ready for Vercel Monorepo
+- **Package Manager**: pnpm
 
 ## Project Structure
 
 - `apps/`
-  - `public-frontend/`: Public-facing website
-  - `admin-frontend/`: Internal admin dashboard
+  - `public-frontend/`: User-facing website for quick access
+  - `admin-frontend/`: Streamlined admin dashboard
 - `packages/`
-  - `ui/`: Shared UI components
+  - `ui/`: Performance-optimised UI components
   - `auth/`: Supabase authentication utilities
   - `rbac/`: Role-based access control logic
+- `docs/`
+  - Organised using PARA method (Projects, Areas, Resources, Archives)
 
 ## Getting Started
 
@@ -65,16 +68,18 @@ pnpm dev --filter admin-frontend
 
 ## Database Schema
 
-RallyRound uses Supabase as its database backend. The schema includes:
+RallyRound uses Supabase with Drizzle ORM as its database backend. The schema includes:
 
-- **users**: User accounts
-- **profiles**: Additional user profile information
-- **user_roles**: User role assignments
-- **organizations**: Community organizations
-- **teams**: Teams within organizations
-- **fundraisers**: Fundraising campaigns
-- **competitions**: Sporting events and tournaments
-- **members**: Organization and team members
+- **users**: User accounts with fast authentication
+- **profiles**: Streamlined user profile information
+- **user_roles**: Efficient role assignments
+- **clubs**: Local social clubs and community groups
+- **events**: Quick-to-set-up meet-ups and activities
+- **finances**: No-fuss financial tracking and budgeting
+- **spaces**: Shared resources management
+- **members**: Simplified membership tracking
+
+Our database is optimised for quick interactions to minimise time spent in the app.
 
 ## Development
 
@@ -92,6 +97,21 @@ cd new-package
 1. Create components in the appropriate app directory
 2. Update routes in the app folder
 3. Add any necessary API endpoints
+
+### Commit & PR Workflow
+
+All commits should use semantic commit messages:
+```
+feat(events): add quick-setup form for meet-ups
+fix(api): correct user endpoint response
+docs(club): update README with new offline-first focus
+```
+
+Before pushing, always run:
+```bash
+pnpm run build
+pnpm run test
+```
 
 ## Deployment
 

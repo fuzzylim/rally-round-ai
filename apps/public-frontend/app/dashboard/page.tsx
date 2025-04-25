@@ -14,8 +14,8 @@ export default function DashboardPage() {
         <div className="pb-5 border-b border-slate-800 sm:flex sm:items-center sm:justify-between">
           <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <div className="mt-3 sm:mt-0 sm:ml-4">
-            <Link href="/fundraisers/create">
-              <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Create Fundraiser</Button>
+            <Link href="/events/create">
+              <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">Create Event</Button>
             </Link>
           </div>
         </div>
@@ -28,23 +28,21 @@ export default function DashboardPage() {
         </div>
         
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* My Fundraisers */}
+          {/* My Events */}
           <Card>
             <CardHeader>
-              <CardTitle>My Fundraisers</CardTitle>
+              <CardTitle>My Events</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="bg-slate-800/70 backdrop-blur-md p-4 rounded-md border border-slate-700">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-white">School Equipment Drive</h3>
-                      <p className="text-sm text-slate-400">$3,240 of $5,000</p>
-                      <div className="mt-2 w-full bg-slate-700 rounded-full h-2.5">
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full" style={{ width: '65%' }}></div>
-                      </div>
+                      <h3 className="font-medium text-white">Monthly Book Discussion</h3>
+                      <p className="text-sm text-slate-400">May 15, 2025 • 7:00 PM</p>
+                      <p className="text-sm text-slate-400 mt-1">City Library, Meeting Room B</p>
                     </div>
-                    <Link href="/fundraisers/1">
+                    <Link href="/events/1">
                       <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-800">View</Button>
                     </Link>
                   </div>
@@ -52,40 +50,38 @@ export default function DashboardPage() {
                 <div className="bg-slate-800/70 backdrop-blur-md p-4 rounded-md border border-slate-700">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-medium text-white">Team Travel Fund</h3>
-                      <p className="text-sm text-slate-400">$1,890 of $3,000</p>
-                      <div className="mt-2 w-full bg-slate-700 rounded-full h-2.5">
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full" style={{ width: '63%' }}></div>
-                      </div>
+                      <h3 className="font-medium text-white">Spring Trail Hike</h3>
+                      <p className="text-sm text-slate-400">May 10, 2025 • 9:00 AM</p>
+                      <p className="text-sm text-slate-400 mt-1">Riverside Park, North Entrance</p>
                     </div>
-                    <Link href="/fundraisers/2">
+                    <Link href="/events/2">
                       <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-800">View</Button>
                     </Link>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Link href="/fundraisers" className="text-sm text-blue-400 hover:text-gradient-primary">
-                    View all fundraisers →
+                  <Link href="/events" className="text-sm text-blue-400 hover:text-gradient-primary">
+                    View all events →
                   </Link>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* My Teams */}
+          {/* My Clubs */}
           <Card>
             <CardHeader>
-              <CardTitle>My Teams</CardTitle>
+              <CardTitle>My Clubs</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="bg-slate-800/70 backdrop-blur-md p-4 rounded-md border border-slate-700">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="font-medium text-white">Eastside Tigers</h3>
-                      <p className="text-sm text-slate-400">Basketball • U16</p>
+                      <h3 className="font-medium text-white">Downtown Book Club</h3>
+                      <p className="text-sm text-slate-400">Literary • 24 members</p>
                     </div>
-                    <Link href="/teams/1">
+                    <Link href="/clubs/1">
                       <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-800">View</Button>
                     </Link>
                   </div>
@@ -93,17 +89,17 @@ export default function DashboardPage() {
                 <div className="bg-slate-800/70 backdrop-blur-md p-4 rounded-md border border-slate-700">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="font-medium text-white">Central High School</h3>
-                      <p className="text-sm text-slate-400">Athletics • Varsity</p>
+                      <h3 className="font-medium text-white">Urban Hiking Collective</h3>
+                      <p className="text-sm text-slate-400">Outdoor • 37 members</p>
                     </div>
-                    <Link href="/teams/2">
+                    <Link href="/clubs/2">
                       <Button variant="outline" size="sm" className="border-slate-600 text-slate-200 hover:bg-slate-800">View</Button>
                     </Link>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Link href="/teams" className="text-sm text-blue-400 hover:text-gradient-primary">
-                    View all teams →
+                  <Link href="/clubs" className="text-sm text-blue-400 hover:text-gradient-primary">
+                    View all clubs →
                   </Link>
                 </div>
               </div>

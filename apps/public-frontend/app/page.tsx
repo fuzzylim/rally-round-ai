@@ -21,9 +21,9 @@ export default function Home() {
 
           {/* Desktop navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/fundraisers" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Fundraisers</Link>
-            <Link href="/competitions" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Competitions</Link>
-            <Link href="/teams" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Teams</Link>
+            <Link href="/events" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Events</Link>
+            <Link href="/finances" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Finances</Link>
+            <Link href="/clubs" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">Clubs</Link>
             <Link href="/about" className="text-slate-300 hover:text-gradient-primary transition-colors duration-300 font-medium">About Us</Link>
           </nav>
 
@@ -46,18 +46,70 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Join Banner */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl font-bold text-white">Join thousands of clubs today</h2>
+          <p className="mt-4 text-xl text-slate-400">
+            Start organising your events and building your community with RallyRound.
+          </p>
+          <div className="mt-8">
+            <Link href="/signup" className="inline-block bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold px-8 py-4 rounded-lg text-lg shadow-lg hover:shadow-xl transition-all duration-300">
+              Get Started for Free
+            </Link>
+          </div>
+          <div className="mt-6">
+            <p className="text-slate-400 mb-2">Want to see something specific?</p>
+            <Link href="/feedback" className="text-blue-400 hover:text-blue-300 font-medium">
+              We want to hear from you! Share your feedback →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <main className="flex-grow">
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-800 to-slate-900 -z-10"></div>
-          <div className="absolute inset-0 opacity-20 bg-[url('/mesh-gradient.svg')] bg-cover bg-center -z-10"></div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-white">
+        <section className="bg-slate-900 py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('/mesh-gradient.svg')] bg-cover bg-fixed opacity-5"></div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-white sm:text-4xl">From the bush to the city</h2>
+              <p className="mt-4 text-lg text-slate-400">
+                Aussie clubs across the country use RallyRound to minimise screen time and maximise real-world connections.
+              </p>
+            </div>
+            
+            {/* Golf Competition Feature */}
+            <div className="mb-16 bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-800/60 rounded-xl p-8">
+              <div className="md:flex md:items-center md:justify-between">
+                <div className="md:flex-1">
+                  <span className="inline-flex items-center rounded-md bg-green-900/30 px-2.5 py-0.5 text-sm font-medium text-green-300">
+                    New Feature
+                  </span>
+                  <h2 className="mt-2 text-xl font-bold text-white sm:text-2xl">Friendly Golf Competitions</h2>
+                  <p className="mt-3 text-slate-300 max-w-3xl">
+                    We're kicking off with golf competitions! Join our monthly tournaments or organise your own casual game with mates. 
+                    All skill levels welcome - we use a handicap system to keep it fair dinkum.
+                  </p>
+                  <div className="mt-6">
+                    <a href="/competitions" className="text-blue-400 hover:text-blue-300 font-medium flex items-center">
+                      View upcoming golf events
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+                <div className="mt-6 md:mt-0 md:ml-8">
+                  <a href="/competitions" className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+                    Get on the green
+                  </a>
+                </div>
+              </div>
+            </div>
             <div className="max-w-3xl">
-              <h2 className="text-5xl font-extrabold tracking-tight sm:text-6xl drop-shadow-md">
-                Bring your community <span className="text-gradient">together</span>
-              </h2>
               <p className="mt-6 text-xl leading-relaxed">
-                RallyRound helps sports clubs, schools, and community groups organize fundraisers,
-                manage competitions, and coordinate teams - all in one place.
+                RallyRound helps Aussie social clubs and community groups organise meet-ups,
+                manage finances, and create real connections — with minimal screen time.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link href="/signup">
@@ -76,11 +128,12 @@ export default function Home() {
         <section className="py-24 bg-slate-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h2 className="text-4xl font-extrabold text-white">
-                What can you do with <span className="text-gradient">RallyRound</span>?
-              </h2>
+              <h2 className="text-3xl font-bold text-white sm:text-4xl">Get organised, then get offline</h2>
+              <p className="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">
+                We believe technology should help you spend more time face-to-face, not glued to screens. RallyRound offers all the tools
+                you need to run your social club efficiently, so you can focus on real-life connections.
+              </p>
             </div>
-
             <div className="mt-16 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               <div className="bg-slate-800/70 backdrop-blur-md border border-slate-700 rounded-xl shadow-md p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-3 rounded-full w-16 h-16 flex items-center justify-center mb-6 shadow-md">
@@ -88,9 +141,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gradient-primary">Community Fundraising</h3>
+                <h3 className="text-2xl font-bold text-gradient-primary">Financial Management</h3>
                 <p className="mt-4 text-slate-300 leading-relaxed">
-                  Raise funds for equipment, travel, or facilities. Create campaigns, track donations, and engage supporters.
+                  Track membership dues, manage expenses, and coordinate group purchases. Keep your club's finances transparent and organized.
                 </p>
               </div>
 
@@ -100,9 +153,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gradient-primary">Sports Competitions</h3>
+                <h3 className="text-2xl font-bold text-gradient-primary">Event Planning</h3>
                 <p className="mt-4 text-slate-300 leading-relaxed">
-                  Organize tournaments, meets, and other sporting events. Handle registrations, schedules, and results.
+                  Create and manage social gatherings, workshops, and activities. Handle RSVPs, schedules, and location details.
                 </p>
               </div>
 
@@ -112,9 +165,9 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gradient-primary">Team Management</h3>
+                <h3 className="text-2xl font-bold text-gradient-primary">Member Management</h3>
                 <p className="mt-4 text-slate-300 leading-relaxed">
-                  Create and manage teams for various activities. Coordinate travel, equipment, and participation.
+                  Maintain member profiles, track participation, and manage role assignments. Keep your club organized and connected.
                 </p>
               </div>
             </div>
