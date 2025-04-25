@@ -6,7 +6,7 @@ const logPrefix = '[Auth] '
 
 // Enhanced logging with request ID for tracing
 const log = (message: string, data?: any) => {
-  console.log(`${logPrefix} ${message}`, data || '');
+  console.log(`${logPrefix} %s`, message, data || '');
 };
 
 // Routes that definitely exist and need authentication
