@@ -53,12 +53,9 @@ describe('Organization Service', () => {
       const result = await organizationService.createOrganization(orgData);
 
       // Assert
+      // We now expect createOrganization to be called, but not addOrganizationMember
+      // since the repository's createOrganization now handles adding the member
       expect(organizationRepository.createOrganization).toHaveBeenCalledWith(orgData);
-      expect(organizationRepository.addOrganizationMember).toHaveBeenCalledWith({
-        organizationId: 'org-123',
-        userId: 'user-123',
-        role: 'owner',
-      });
       
       expect(result).toEqual({
         organization: {

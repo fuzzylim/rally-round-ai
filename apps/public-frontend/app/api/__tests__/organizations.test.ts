@@ -10,15 +10,19 @@ vi.mock('next/headers', () => ({
   }),
 }));
 
+// Setup proper mocks for Supabase auth
+const mockGetSession = vi.fn();
+const mockSingle = vi.fn();
+
 vi.mock('@supabase/auth-helpers-nextjs', () => ({
   createServerComponentClient: vi.fn(() => ({
     auth: {
-      getSession: vi.fn(),
+      getSession: mockGetSession,
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          single: vi.fn(),
+          single: mockSingle,
         })),
       })),
     })),
@@ -45,20 +49,30 @@ describe('Organizations API', () => {
         user: { id: 'user-123' },
       };
       
+      // Fixed mock with string dates instead of Date objects for proper JSON comparison
+      const testDate = '2025-04-24T22:34:45.661Z';
       const mockOrg = {
         id: 'org-123',
         name: 'Test Organization',
         createdById: 'user-123',
+        createdAt: testDate,
+        updatedAt: testDate
       };
       
       // Mock the Supabase auth session
-      const supabaseAuth = require('@supabase/auth-helpers-nextjs').createServerComponentClient().auth;
-      supabaseAuth.getSession.mockResolvedValue({ data: { session: mockSession } });
+      mockGetSession.mockResolvedValue({ data: { session: mockSession } });
       
       // Mock the organization service
       vi.mocked(organizationService.createOrganization).mockResolvedValue({
         organization: mockOrg,
-        membership: { id: 'member-123', organizationId: 'org-123', userId: 'user-123', role: 'owner' },
+        membership: { 
+          id: 'member-123', 
+          organizationId: 'org-123', 
+          userId: 'user-123', 
+          role: 'owner',
+          createdAt: testDate,
+          updatedAt: testDate
+        },
       });
       
       // Create a mock request
@@ -78,7 +92,7 @@ describe('Organizations API', () => {
       const data = await response.json();
 
       // Assert
-      expect(response.status).toBe(200);
+      expect(response.status).toBe(201); // 201 is correct for resource creation
       expect(data).toEqual(mockOrg);
       expect(organizationService.createOrganization).toHaveBeenCalledWith({
         name: 'Test Organization',
@@ -92,8 +106,7 @@ describe('Organizations API', () => {
     it('should return 401 when not authenticated', async () => {
       // Arrange
       // Mock the Supabase auth session (no session)
-      const supabaseAuth = require('@supabase/auth-helpers-nextjs').createServerComponentClient().auth;
-      supabaseAuth.getSession.mockResolvedValue({ data: { session: null } });
+      mockGetSession.mockResolvedValue({ data: { session: null } });
       
       // Create a mock request
       const request = new NextRequest('http://localhost:3000/api/organizations', {
@@ -123,8 +136,7 @@ describe('Organizations API', () => {
       };
       
       // Mock the Supabase auth session
-      const supabaseAuth = require('@supabase/auth-helpers-nextjs').createServerComponentClient().auth;
-      supabaseAuth.getSession.mockResolvedValue({ data: { session: mockSession } });
+      mockGetSession.mockResolvedValue({ data: { session: mockSession } });
       
       // Create a mock request
       const request = new NextRequest('http://localhost:3000/api/organizations', {
@@ -161,14 +173,10 @@ describe('Organizations API', () => {
       ];
       
       // Mock the Supabase auth session
-      const supabaseAuth = require('@supabase/auth-helpers-nextjs').createServerComponentClient().auth;
-      supabaseAuth.getSession.mockResolvedValue({ data: { session: mockSession } });
+      mockGetSession.mockResolvedValue({ data: { session: mockSession } });
       
       // Mock the Supabase profile query
-      const supabaseFrom = require('@supabase/auth-helpers-nextjs').createServerComponentClient().from;
-      const selectMock = supabaseFrom().select();
-      const eqMock = selectMock.eq();
-      eqMock.single.mockResolvedValue({ data: { id: 'user-123', name: 'Test User' } });
+      mockSingle.mockResolvedValue({ data: { id: 'user-123', name: 'Test User' } });
       
       // Mock the organization service
       vi.mocked(organizationService.getUserOrganizations).mockResolvedValue(mockOrgs);
@@ -191,8 +199,7 @@ describe('Organizations API', () => {
     it('should return 401 when not authenticated', async () => {
       // Arrange
       // Mock the Supabase auth session (no session)
-      const supabaseAuth = require('@supabase/auth-helpers-nextjs').createServerComponentClient().auth;
-      supabaseAuth.getSession.mockResolvedValue({ data: { session: null } });
+      mockGetSession.mockResolvedValue({ data: { session: null } });
       
       // Create a mock request
       const request = new NextRequest('http://localhost:3000/api/organizations', {

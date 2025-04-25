@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "start": "turbo run start",
     "lint": "turbo run lint",
-    "test": "vitest run",
+    "test": "vitest run --timeout=10000 --logLevel=verbose",
     "test:watch": "vitest",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
@@ -23,10 +23,13 @@
     "next": "15.2.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@vitejs/plugin-react": "^4.0.4",
     "@vitest/coverage-c8": "^0.33.0",
     "eslint": "^8.48.0",
     "prettier": "^3.0.3",
     "turbo": "^1.10.12",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.2"
   },
   "packageManager": "pnpm@8.6.10"

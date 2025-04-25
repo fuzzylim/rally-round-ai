@@ -1,9 +1,21 @@
+import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../AuthProvider';
 import { getCurrentUser, signInWithEmail, signOut } from '@rallyround/auth';
 
-// Mock the auth functions
+// Mock Next.js hooks that might be used by the AuthProvider
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  })),
+  usePathname: vi.fn(() => '/test'),
+  useSearchParams: vi.fn(() => ({ get: vi.fn() })),
+}));
+
+// Mock the auth functions with proper typing
 vi.mock('@rallyround/auth', () => ({
   getCurrentUser: vi.fn(),
   signInWithEmail: vi.fn(),
@@ -11,6 +23,11 @@ vi.mock('@rallyround/auth', () => ({
   signInWithSocial: vi.fn(),
   handleSocialAuthCallback: vi.fn(),
 }));
+
+// Cast mocked functions with proper types
+const mockedGetCurrentUser = getCurrentUser as unknown as ReturnType<typeof vi.fn>;
+const mockedSignInWithEmail = signInWithEmail as unknown as ReturnType<typeof vi.fn>;
+const mockedSignOut = signOut as unknown as ReturnType<typeof vi.fn>;
 
 // Test component that uses the auth context
 function TestComponent() {
@@ -31,6 +48,9 @@ describe('AuthProvider', () => {
   });
 
   it('should show loading state initially', () => {
+    // Configure the mock to return undefined initially (loading state)
+    mockedGetCurrentUser.mockReturnValueOnce(new Promise(() => {})); // Pending promise
+    
     render(
       <AuthProvider>
         <TestComponent />
@@ -41,8 +61,8 @@ describe('AuthProvider', () => {
   });
 
   it('should load user on mount', async () => {
-    const mockUser = { email: 'test@example.com' };
-    getCurrentUser.mockResolvedValue(mockUser);
+    const mockUser = { id: 'user-123', email: 'test@example.com' };
+    mockedGetCurrentUser.mockResolvedValue(mockUser);
 
     render(
       <AuthProvider>
@@ -53,11 +73,13 @@ describe('AuthProvider', () => {
     await waitFor(() => {
       expect(screen.getByText(`User: ${mockUser.email}`)).toBeInTheDocument();
     });
+    
+    expect(mockedGetCurrentUser).toHaveBeenCalled();
   });
 
   it('should handle sign in', async () => {
-    const mockUser = { email: 'test@example.com' };
-    signInWithEmail.mockResolvedValue({ user: mockUser, error: null });
+    const mockUser = { id: 'user-123', email: 'test@example.com' };
+    mockedSignInWithEmail.mockResolvedValue({ user: mockUser, error: null });
 
     render(
       <AuthProvider>
@@ -71,12 +93,12 @@ describe('AuthProvider', () => {
       expect(screen.getByText(`User: ${mockUser.email}`)).toBeInTheDocument();
     });
 
-    expect(signInWithEmail).toHaveBeenCalledWith('test@example.com', 'password');
+    expect(mockedSignInWithEmail).toHaveBeenCalledWith('test@example.com', 'password');
   });
 
   it('should handle sign in error', async () => {
     const error = new Error('Invalid credentials');
-    signInWithEmail.mockResolvedValue({ user: null, error });
+    mockedSignInWithEmail.mockResolvedValue({ user: null, error });
 
     render(
       <AuthProvider>
@@ -92,9 +114,10 @@ describe('AuthProvider', () => {
   });
 
   it('should handle sign out', async () => {
-    const mockUser = { email: 'test@example.com' };
-    getCurrentUser.mockResolvedValue(mockUser);
-    signOut.mockResolvedValue({ error: null });
+    // First render with a user
+    const mockUser = { id: 'user-123', email: 'test@example.com' };
+    mockedGetCurrentUser.mockResolvedValue(mockUser);
+    mockedSignOut.mockResolvedValue({ error: null });
 
     const { rerender } = render(
       <AuthProvider>
@@ -102,12 +125,13 @@ describe('AuthProvider', () => {
       </AuthProvider>
     );
 
+    // Wait for user to be loaded
     await waitFor(() => {
       expect(screen.getByText(`User: ${mockUser.email}`)).toBeInTheDocument();
     });
 
     // Mock user being signed out
-    getCurrentUser.mockResolvedValue(null);
+    mockedGetCurrentUser.mockResolvedValue(null);
     
     // Re-render to trigger the effect
     rerender(
@@ -116,6 +140,7 @@ describe('AuthProvider', () => {
       </AuthProvider>
     );
 
+    // Wait for user to be removed from UI
     await waitFor(() => {
       expect(screen.queryByText(`User: ${mockUser.email}`)).not.toBeInTheDocument();
     });

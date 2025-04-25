@@ -1,15 +1,16 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GET } from './route';
 import { createSupabaseClient } from '@rallyround/auth';
 import { NextResponse } from 'next/server';
 
 // Mock dependencies
-jest.mock('@rallyround/auth', () => ({
-  createSupabaseClient: jest.fn(),
+vi.mock('@rallyround/auth', () => ({
+  createSupabaseClient: vi.fn(),
 }));
 
-jest.mock('next/server', () => ({
+vi.mock('next/server', () => ({
   NextResponse: {
-    json: jest.fn().mockImplementation((body, options) => ({ 
+    json: vi.fn().mockImplementation((body, options) => ({ 
       body, 
       ...options 
     })),
@@ -18,20 +19,20 @@ jest.mock('next/server', () => ({
 
 describe('Health Check API', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return 200 when all services are healthy', async () => {
     // Mock Supabase client
     const mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      count: jest.fn(),
+      from: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      count: vi.fn(),
     };
     mockSupabase.from.mockReturnValue(mockSupabase);
     mockSupabase.select.mockReturnValue({ error: null });
     
-    (createSupabaseClient as jest.Mock).mockReturnValue(mockSupabase);
+    (createSupabaseClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockSupabase);
 
     // Call the handler
     const response = await GET();
@@ -52,14 +53,14 @@ describe('Health Check API', () => {
   it('should return 503 when database is unhealthy', async () => {
     // Mock Supabase client with error
     const mockSupabase = {
-      from: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      count: jest.fn(),
+      from: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      count: vi.fn(),
     };
     mockSupabase.from.mockReturnValue(mockSupabase);
     mockSupabase.select.mockReturnValue({ error: new Error('Database error') });
     
-    (createSupabaseClient as jest.Mock).mockReturnValue(mockSupabase);
+    (createSupabaseClient as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockSupabase);
 
     // Call the handler
     const response = await GET();
@@ -79,7 +80,7 @@ describe('Health Check API', () => {
 
   it('should return 500 when an unexpected error occurs', async () => {
     // Mock Supabase client that throws
-    (createSupabaseClient as jest.Mock).mockImplementation(() => {
+    (createSupabaseClient as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => {
       throw new Error('Unexpected error');
     });
 

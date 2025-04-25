@@ -40,18 +40,14 @@ export class OrganizationService implements OrganizationServiceInterface {
         throw new Error('Missing required organization information');
       }
 
-      // Create organization
+      // Create organization - this already creates the membership
       const result = await organizationRepository.createOrganization(params);
-      const createdOrg = result.organization;
       
-      // Add creator as owner
-      const membership = await organizationRepository.addOrganizationMember({
-        organizationId: createdOrg.id,
-        userId: params.createdById,
-        role: 'owner'
-      });
-      
-      return { organization: createdOrg, membership };
+      // Return both organization and membership from the repository result
+      return {
+        organization: result.organization,
+        membership: result.membership
+      };
     } catch (error) {
       console.error('OrganizationService.createOrganization error:', error);
       throw new Error(`Failed to create organization: ${error instanceof Error ? error.message : String(error)}`);

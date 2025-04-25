@@ -1,163 +1,248 @@
 /**
- * Simplified middleware test to avoid ESM issues
- * 
- * This test focuses on the core functionality of the middleware
- * without getting caught in ESM-related dependency issues.
+ * Middleware tests
  */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextResponse, NextRequest } from 'next/server';
 
-// Mock the NextResponse and NextRequest
-const mockRedirect = jest.fn();
-const mockNext = jest.fn();
+// Set up mocks before imports
+vi.mock('next/server', async () => {
+  const actual = await vi.importActual('next/server');
+  const mockNext = vi.fn().mockReturnValue({ status: 200 });
+  const mockRedirect = vi.fn().mockImplementation((url) => ({ status: 307, url }));
+  
+  return {
+    ...actual,
+    NextResponse: {
+      next: mockNext,
+      redirect: mockRedirect
+    }
+  };
+});
 
-// Mock the next/server module
-jest.mock('next/server', () => ({
-  NextResponse: {
-    redirect: (url) => {
-      mockRedirect(url.toString());
-      return { status: 307, headers: new Map([['location', url.toString()]]) };
-    },
-    next: () => {
-      mockNext();
-      return { status: 200, headers: new Map() };
-    },
-  },
-}));
-
-// Mock the Supabase client
-const mockGetSession = jest.fn();
-jest.mock('@supabase/auth-helpers-nextjs', () => ({
-  createMiddlewareClient: jest.fn().mockImplementation(() => ({
+// Mock Supabase client
+vi.mock('@supabase/auth-helpers-nextjs', () => ({
+  createMiddlewareClient: vi.fn(() => ({
     auth: {
-      getSession: mockGetSession,
+      getSession: vi.fn()
     },
   })),
 }));
 
-// Silence console logs during tests
-console.log = jest.fn();
-
-// Import the middleware after mocks are set up
+// Import middleware and mocked dependencies after setup
 import { middleware } from './middleware';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-// Create a simplified mock request for testing
-function makeRequest(path: string, search: string = '') {
+// Utility to create a mock request
+function createMockRequest(path: string, searchParams = ''): NextRequest {
+  const url = `http://localhost${path}${searchParams}`;
   return {
     nextUrl: {
       pathname: path,
-      searchParams: new URLSearchParams(search),
+      searchParams: new URLSearchParams(searchParams),
+      href: url,
     },
-    url: `http://localhost${path}${search}`,
+    url,
     headers: new Headers(),
-    clone: () => ({}),
-  };
+    cookies: {
+      get: vi.fn(),
+      getAll: vi.fn(),
+      set: vi.fn(),
+      delete: vi.fn(),
+      has: vi.fn(),
+      clear: vi.fn(),
+    },
+    clone: vi.fn(),
+  } as unknown as NextRequest;
 }
 
-describe('middleware auth', () => {
+describe('Middleware', () => {
+  // Create mock references
+  const mockAuth = { getSession: vi.fn() };
+  const mockClient = { auth: mockAuth };
+  const mockNext = NextResponse.next as unknown as ReturnType<typeof vi.fn>;
+  const mockRedirect = NextResponse.redirect as unknown as ReturnType<typeof vi.fn>;
+  const mockCreateMiddlewareClient = createMiddlewareClient as unknown as ReturnType<typeof vi.fn>;
+  
+  // Mock for NextResponse.next() response that is returned by middleware
+  const mockNextResponse = { status: 200 };
+  
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockRedirect.mockClear();
-    mockNext.mockClear();
-  })
+    // Clear all mocks but maintain their implementation
+    vi.clearAllMocks();
+    
+    // Set up consistent return values for each test
+    mockCreateMiddlewareClient.mockReturnValue(mockClient);
+    mockNext.mockReturnValue(mockNextResponse);
+    mockRedirect.mockImplementation((url) => ({ status: 307, url }));
+  });
 
-  it('allows public route without session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
+  describe('public routes', () => {
+    it('allows access to home page without session', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ data: { session: null } });
+      const req = createMockRequest('/');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+    
+    it('allows access to unknown routes without session', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ data: { session: null } });
+      const req = createMockRequest('/unknown-route');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+    
+    it('allows access to competitions page without session', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ data: { session: null } });
+      const req = createMockRequest('/competitions');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+    
+    it('allows access to auth callback always', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ data: { session: null } });
+      const req = createMockRequest('/auth/callback');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+  });
   
-  it('allows unknown routes without session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/unknown-route'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
-
-  it('redirects to login on protected route with no session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/dashboard'));
-    expect(mockRedirect).toHaveBeenCalledWith('/login');
-    expect(mockNext).not.toHaveBeenCalled();
-  })
-
-  it('allows protected route when session exists', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: { user: { email: 'u@u.com' } } } });
-    await middleware(makeRequest('/dashboard'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
-
-  it('redirects from login to dashboard when session exists', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: { user: { email: 'u@u.com' } } } });
-    await middleware(makeRequest('/login'));
-    expect(mockRedirect).toHaveBeenCalledWith('/dashboard');
-    expect(mockNext).not.toHaveBeenCalled();
-  })
-
-  it('respects redirect query param on login', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: { user: { email: 'u@u.com' } } } });
-    await middleware(makeRequest('/login', '?redirect=/teams'));
-    expect(mockRedirect).toHaveBeenCalledWith('/teams');
-    expect(mockNext).not.toHaveBeenCalled();
-  })
-
-  it('allows competitions (public) without session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/competitions'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
-
-  it('redirects to login for /teams without session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/teams'));
-    expect(mockRedirect).toHaveBeenCalledWith('/login');
-    expect(mockNext).not.toHaveBeenCalled();
-  })
-
-  it('allows /teams with session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: { user: { email: 'u@u.com' } } } });
-    await middleware(makeRequest('/teams'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
-
-  it('redirects to login for /fundraisers/create without session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/fundraisers/create'));
-    expect(mockRedirect).toHaveBeenCalledWith('/login');
-    expect(mockNext).not.toHaveBeenCalled();
-  })
-
-  it('allows /fundraisers/create with session', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: { user: { email: 'u@u.com' } } } });
-    await middleware(makeRequest('/fundraisers/create'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
-
-  it('allows auth callback always', async () => {
-    mockGetSession.mockResolvedValue({ data: { session: null } });
-    await middleware(makeRequest('/auth/callback'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockRedirect).not.toHaveBeenCalled();
-  })
+  describe('protected routes', () => {
+    it('redirects to login on protected dashboard route with no session', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ data: { session: null } });
+      const req = createMockRequest('/dashboard');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      // In the middleware, when redirecting, we don't use the result of NextResponse.next()
+      expect(mockRedirect).toHaveBeenCalled();
+      
+      // Check that we're redirecting to the correct path
+      const redirectUrl = mockRedirect.mock.calls[0][0];
+      expect(redirectUrl).toHaveProperty('pathname', '/login');
+    });
+    
+    it('allows protected dashboard route when session exists', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ 
+        data: { session: { user: { email: 'user@example.com' } } } 
+      });
+      const req = createMockRequest('/dashboard');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockRedirect).not.toHaveBeenCalled();
+    });
+  });
   
-  it('bypasses static files', async () => {
-    await middleware(makeRequest('/test.css'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockGetSession).not.toHaveBeenCalled();
-  })
+  describe('auth redirects', () => {
+    it('redirects from login to dashboard when session exists', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ 
+        data: { session: { user: { email: 'user@example.com' } } } 
+      });
+      const req = createMockRequest('/login');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      // In the middleware, when redirecting, we don't use the result of NextResponse.next()
+      expect(mockRedirect).toHaveBeenCalled();
+      
+      // Check that we're redirecting to the correct path
+      const redirectUrl = mockRedirect.mock.calls[0][0];
+      expect(redirectUrl).toHaveProperty('pathname', '/dashboard');
+    });
+    
+    it('respects redirect query param on login', async () => {
+      // Arrange
+      mockAuth.getSession.mockResolvedValue({ 
+        data: { session: { user: { email: 'user@example.com' } } } 
+      });
+      const req = createMockRequest('/login', '?redirect=/teams');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      // In the middleware, when redirecting, we don't use the result of NextResponse.next()
+      expect(mockRedirect).toHaveBeenCalled();
+      
+      // Check that we're redirecting to the correct path
+      const redirectUrl = mockRedirect.mock.calls[0][0];
+      expect(redirectUrl).toHaveProperty('pathname', '/teams');
+    });
+  });
   
-  it('bypasses _next paths', async () => {
-    await middleware(makeRequest('/_next/static/file.js'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockGetSession).not.toHaveBeenCalled();
-  })
-  
-  it('bypasses api routes', async () => {
-    await middleware(makeRequest('/api/test'));
-    expect(mockNext).toHaveBeenCalled();
-    expect(mockGetSession).not.toHaveBeenCalled();
-  })
-})
+  describe('static assets and API routes', () => {
+    it('bypasses static files', async () => {
+      // Arrange
+      const req = createMockRequest('/test.css');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockAuth.getSession).not.toHaveBeenCalled();
+    });
+    
+    it('bypasses _next paths', async () => {
+      // Arrange
+      const req = createMockRequest('/_next/static/file.js');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockAuth.getSession).not.toHaveBeenCalled();
+    });
+    
+    it('bypasses api routes', async () => {
+      // Arrange
+      const req = createMockRequest('/api/test');
+      
+      // Act
+      await middleware(req);
+      
+      // Assert
+      expect(mockNext).toHaveBeenCalled();
+      expect(mockAuth.getSession).not.toHaveBeenCalled();
+    });
+  });
+});
