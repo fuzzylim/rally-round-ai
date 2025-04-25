@@ -1,20 +1,20 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import SocialLoginButtons from './SocialLoginButtons';
 import { useAuth } from './AuthProvider';
 
 // Mock the useAuth hook
-jest.mock('./AuthProvider', () => ({
-  useAuth: jest.fn(),
+vi.mock('./AuthProvider', () => ({
+  useAuth: vi.fn(),
 }));
 
 describe('SocialLoginButtons', () => {
-  const mockSignInWithProvider = jest.fn();
+  const mockSignInWithProvider = vi.fn();
   
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useAuth as jest.Mock).mockReturnValue({
+    vi.clearAllMocks();
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       signInWithProvider: mockSignInWithProvider,
       loading: false,
     });
@@ -58,7 +58,7 @@ describe('SocialLoginButtons', () => {
   });
 
   it('disables buttons when loading', () => {
-    (useAuth as jest.Mock).mockReturnValue({
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
       signInWithProvider: mockSignInWithProvider,
       loading: true,
     });
@@ -99,7 +99,7 @@ describe('SocialLoginButtons', () => {
   });
 
   it('handles errors during sign in', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockSignInWithProvider.mockRejectedValue(new Error('Sign in failed'));
     
     render(<SocialLoginButtons />);
