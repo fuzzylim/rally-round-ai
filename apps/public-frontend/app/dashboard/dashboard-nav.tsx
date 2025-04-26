@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@rallyround/ui';
 import LogoutButton from '../components/auth/LogoutButton';
 import { useAuth } from '../components/auth/AuthProvider';
+import { OrganizationSwitcher } from '../components/organization/OrganizationSwitcher';
 
 export default function DashboardNav() {
   const pathname = usePathname();
@@ -31,7 +32,7 @@ export default function DashboardNav() {
                 <h1 className="text-2xl font-extrabold text-gradient tracking-tight">RallyRound</h1>
               </Link>
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden sm:flex sm:ml-2 sm:space-x-4 items-center">
               <Link 
                 href="/dashboard" 
                 className={`${
@@ -75,6 +76,9 @@ export default function DashboardNav() {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
+            <div className="hidden sm:flex sm:items-center sm:ml-4">
+              <OrganizationSwitcher />
+            </div>
             <Link href="/profile">
               <Button variant="outline" size="sm" className="mr-4 border-slate-600 text-slate-200 hover:bg-slate-800">Profile</Button>
             </Link>
